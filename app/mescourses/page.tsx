@@ -523,7 +523,7 @@ function AnalyseAllure({ activities }: { activities: Activity[] }) {
 
 // ─── Page principale ──────────────────────────────────────────────────────────
 
-export default function MesCoursesPage() {
+function MesCoursesContent() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const isDemo = pathname?.startsWith("/demo") ?? false;
@@ -1001,5 +1001,13 @@ export default function MesCoursesPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function MesCoursesPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh" }} />}>
+      <MesCoursesContent />
+    </Suspense>
   );
 }
