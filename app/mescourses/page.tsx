@@ -667,49 +667,59 @@ function MesCoursesContent() {
     const { data: { user } } = await supabase.auth.getUser();
 
     const res = await fetch("/api/strava/activities", { method: "POST" });
-    if (res.ok) {
-      const json = await res.json();
-      setData(json);
-      setConnected(true);
-      const syncDate = json.lastSync ?? new Date().toISOString();
-      setLastSync(syncDate);
-
-      // Recharge parcours, compagnons, associations après la sync
-      if (user) {
-        const activities: Activity[] = json.activities ?? [];
-        const [{ data: parc }, { data: obj }, { data: comps }] = await Promise.all([
-          supabase.from("parcours").select("id, nom, distance_km, denivele_positif_m").eq("actif", true).eq("user_id", user.id).order("nom"),
-          supabase.from("objectifs").select("*").eq("actif", true).eq("user_id", user.id).order("created_at", { ascending: false }),
-          supabase.from("compagnons").select("id, nom, actif").eq("user_id", user.id).order("nom"),
-        ]);
-        const parcoursBDD: Parcours[] = parc || [];
-        setParcoursList(parcoursBDD);
-        setObjectifs(obj || []);
-        setCompagnonsPacelab(comps || []);
-
-        const assocRes = await fetch("/api/strava/associations");
-        const assocData: Association[] = assocRes.ok ? await assocRes.json() : [];
-        const assocMap = new Map<number, Parcours | null>();
-        assocData.forEach((a) => { assocMap.set(Number(a.strava_activity_id), a.parcours); });
-        activities.forEach((act) => {
-          if (!assocMap.has(act.id)) {
-            const match = parcoursBDD.find((p) => p.nom.toLowerCase() === act.name.trim().toLowerCase());
-            if (match) assocMap.set(act.id, match);
-          }
-        });
-        setAssociations(assocMap);
-
-        const scRes = await fetch("/api/strava/compagnons");
-        const scData: StravaCompagnon[] = scRes.ok ? await scRes.json() : [];
-        const scMap = new Map<number, CompagnonPacelab[]>();
-        scData.forEach((sc) => {
-          const id = Number(sc.strava_activity_id);
-          if (!scMap.has(id)) scMap.set(id, []);
-          if (sc.compagnon) scMap.get(id)!.push(sc.compagnon);
-        });
-        setStravaCompagnons(scMap);
-      }
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "");
+      console.error("Sync failed:", res.status, errText);
+      setSyncing(false);
+      return;
     }
+
+    const json = await res.json();
+    setConnected(true);
+    const syncDate = json.lastSync ?? new Date().toISOString();
+    setLastSync(syncDate);
+
+    // Recharge les données complètes depuis le cache (GET)
+    const fresh = await fetch("/api/strava/activities");
+    const freshJson = fresh.ok ? await fresh.json() : json;
+    setData(freshJson);
+
+    // Recharge parcours, compagnons, associations après la sync
+    if (user) {
+      const activities: Activity[] = json.activities ?? [];
+      const [{ data: parc }, { data: obj }, { data: comps }] = await Promise.all([
+        supabase.from("parcours").select("id, nom, distance_km, denivele_positif_m").eq("actif", true).eq("user_id", user.id).order("nom"),
+        supabase.from("objectifs").select("*").eq("actif", true).eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("compagnons").select("id, nom, actif").eq("user_id", user.id).order("nom"),
+      ]);
+      const parcoursBDD: Parcours[] = parc || [];
+      setParcoursList(parcoursBDD);
+      setObjectifs(obj || []);
+      setCompagnonsPacelab(comps || []);
+
+      const assocRes = await fetch("/api/strava/associations");
+      const assocData: Association[] = assocRes.ok ? await assocRes.json() : [];
+      const assocMap = new Map<number, Parcours | null>();
+      assocData.forEach((a) => { assocMap.set(Number(a.strava_activity_id), a.parcours); });
+      activities.forEach((act) => {
+        if (!assocMap.has(act.id)) {
+          const match = parcoursBDD.find((p) => p.nom.toLowerCase() === act.name.trim().toLowerCase());
+          if (match) assocMap.set(act.id, match);
+        }
+      });
+      setAssociations(assocMap);
+
+      const scRes = await fetch("/api/strava/compagnons");
+      const scData: StravaCompagnon[] = scRes.ok ? await scRes.json() : [];
+      const scMap = new Map<number, CompagnonPacelab[]>();
+      scData.forEach((sc) => {
+        const id = Number(sc.strava_activity_id);
+        if (!scMap.has(id)) scMap.set(id, []);
+        if (sc.compagnon) scMap.get(id)!.push(sc.compagnon);
+      });
+      setStravaCompagnons(scMap);
+    }
+
     setSyncing(false);
     setSyncSuccess(true);
     setTimeout(() => setSyncSuccess(false), 10000);
@@ -849,6 +859,7 @@ function MesCoursesContent() {
                   <><span style={{ fontSize: 14, display: "inline-block", animation: syncing ? "spin 1s linear infinite" : "none" }}>⟳</span>{syncing ? "Synchronisation..." : "Synchroniser les données Strava"}</>
                 )}
               </button>
+              )}
               {isLoggedIn && connected && <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80" }} /><span style={{ fontSize: 12, color: "var(--text-dim)", fontFamily: "var(--font-geist)" }}>Strava connecté</span></div>}
             </div>
           )}
