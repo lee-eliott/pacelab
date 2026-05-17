@@ -533,6 +533,7 @@ function MesCoursesContent() {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [syncSuccess, setSyncSuccess] = useState(false);
+  const [tokenExpired, setTokenExpired] = useState(false);
   const [connected, setConnected] = useState(false);
   const [data, setData] = useState<{ activities: Activity[]; athlete: Athlete | null; stats: Stats | null; lastSync?: string | null } | null>(null);
   const [parcoursList, setParcoursList] = useState<Parcours[]>([]);
