@@ -851,14 +851,19 @@ function MesCoursesContent() {
           </div>
           {connected && (
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              {lastSyncStr && <span style={{ fontSize: 11, color: "var(--text-dim)", fontFamily: "var(--font-geist)" }}>Sync : {lastSyncStr}</span>}
-              <button onClick={syncFromStrava} disabled={syncing || syncSuccess} style={{ display: "flex", alignItems: "center", gap: 6, background: syncSuccess ? "rgba(29,158,117,0.1)" : syncing ? "#2a2a2a" : "rgba(252,76,2,0.12)", border: syncSuccess ? "0.5px solid rgba(29,158,117,0.4)" : "0.5px solid rgba(252,76,2,0.4)", borderRadius: 7, padding: "6px 14px", fontSize: 12, color: syncSuccess ? "#1d9e75" : syncing ? "#555" : "#FC4C02", cursor: syncing || syncSuccess ? "not-allowed" : "pointer", fontFamily: "var(--font-geist)", transition: "all .3s ease" }}>
-                {syncSuccess ? (
-                  <><div style={{ width: 6, height: 6, borderRadius: "50%", background: "#1d9e75" }} />Synchronisé</>
-                ) : (
-                  <><span style={{ fontSize: 14, display: "inline-block", animation: syncing ? "spin 1s linear infinite" : "none" }}>⟳</span>{syncing ? "Synchronisation..." : "Synchroniser les données Strava"}</>
-                )}
-              </button>
+              {lastSyncStr && !tokenExpired && <span style={{ fontSize: 11, color: "var(--text-dim)", fontFamily: "var(--font-geist)" }}>Sync : {lastSyncStr}</span>}
+              {tokenExpired ? (
+                <button onClick={handleConnect} style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(252,76,2,0.15)", border: "0.5px solid rgba(252,76,2,0.6)", borderRadius: 7, padding: "6px 14px", fontSize: 12, color: "#FC4C02", cursor: "pointer", fontFamily: "var(--font-geist)" }}>
+                  ⚠ Token expiré — Reconnecter Strava
+                </button>
+              ) : (
+                <button onClick={syncFromStrava} disabled={syncing || syncSuccess} style={{ display: "flex", alignItems: "center", gap: 6, background: syncSuccess ? "rgba(29,158,117,0.1)" : syncing ? "#2a2a2a" : "rgba(252,76,2,0.12)", border: syncSuccess ? "0.5px solid rgba(29,158,117,0.4)" : "0.5px solid rgba(252,76,2,0.4)", borderRadius: 7, padding: "6px 14px", fontSize: 12, color: syncSuccess ? "#1d9e75" : syncing ? "#555" : "#FC4C02", cursor: syncing || syncSuccess ? "not-allowed" : "pointer", fontFamily: "var(--font-geist)", transition: "all .3s ease" }}>
+                  {syncSuccess ? (
+                    <><div style={{ width: 6, height: 6, borderRadius: "50%", background: "#1d9e75" }} />Synchronisé</>
+                  ) : (
+                    <><span style={{ fontSize: 14, display: "inline-block", animation: syncing ? "spin 1s linear infinite" : "none" }}>⟳</span>{syncing ? "Synchronisation..." : "Synchroniser les données Strava"}</>
+                  )}
+                </button>
               )}
               {isLoggedIn && connected && <div style={{ display: "flex", alignItems: "center", gap: 6 }}><div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80" }} /><span style={{ fontSize: 12, color: "var(--text-dim)", fontFamily: "var(--font-geist)" }}>Strava connecté</span></div>}
             </div>
