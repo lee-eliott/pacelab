@@ -671,6 +671,7 @@ function MesCoursesContent() {
     if (!res.ok) {
       const errText = await res.text().catch(() => "");
       console.error("Sync failed:", res.status, errText);
+      if (res.status === 401) setTokenExpired(true);
       setSyncing(false);
       return;
     }
