@@ -21,8 +21,8 @@ function paceToSec(speed: number) { return speed>0?1000/speed:9999; }
 function secToPaceStr(sec: number) { return`${Math.floor(sec/60)}'${String(Math.round(sec%60)).padStart(2,"0")}"`; }
 function quantile(sorted: number[], q: number) { const pos=(sorted.length-1)*q,base=Math.floor(pos),rest=pos-base; return sorted[base+1]!==undefined?sorted[base]+rest*(sorted[base+1]-sorted[base]):sorted[base]; }
 
-const lbl: React.CSSProperties = { fontSize:10,color:"var(--text-dim)",letterSpacing:".05em",textTransform:"uppercase",fontFamily:"var(--font-geist)",margin:"0 0 6px",display:"block" };
-const card: React.CSSProperties = { background:"var(--surface)",border:"0.5px solid var(--border)",borderRadius:10,padding:"20px 22px" };
+const lbl: React.CSSProperties = { fontSize:10,color:"var(--text-muted)",letterSpacing:".05em",textTransform:"uppercase",fontFamily:"var(--font-geist)",margin:"0 0 6px",display:"block" };
+const card: React.CSSProperties = { background:"var(--surface)",border:"0.5px solid var(--border)",borderRadius:12,padding:"20px 22px" };
 
 function BoxPlot({ paces, selectedId, hoveredId, onSelect, onHover }: { paces:{speed:number;date:string;id:number}[]; selectedId:number|null; hoveredId:number|null; onSelect:(id:number)=>void; onHover:(id:number|null)=>void }) {
   const sorted=[...paces].map(p=>paceToSec(p.speed)).sort((a,b)=>a-b);
@@ -41,34 +41,34 @@ function BoxPlot({ paces, selectedId, hoveredId, onSelect, onHover }: { paces:{s
     <div>
       <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block",overflow:"visible"}} onMouseLeave={()=>onHover(null)}>
         {ticks.map((t,i)=><g key={i}>
-          <line x1={xOf(t)} y1={padT} x2={xOf(t)} y2={H-padB} stroke="#1e1e1e" strokeWidth={1}/>
-          <text x={xOf(t)} y={H-padB+14} textAnchor="middle" fontSize={9} fill="#555" fontFamily="var(--font-dm-mono)">{secToPaceStr(t)}</text>
+          <line x1={xOf(t)} y1={padT} x2={xOf(t)} y2={H-padB} style={{stroke:"var(--border)"}} strokeWidth={1}/>
+          <text x={xOf(t)} y={H-padB+14} textAnchor="middle" fontSize={9} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-dm-mono)">{secToPaceStr(t)}</text>
         </g>)}
         {/* Whiskers : de max (gauche) vers q3, et de q1 vers min (droite) */}
-        <line x1={xOf(max)} y1={midY} x2={xOf(q3)} y2={midY} stroke="#444" strokeWidth={1.5} strokeDasharray="3 2"/>
-        <line x1={xOf(q1)} y1={midY} x2={xOf(min)} y2={midY} stroke="#444" strokeWidth={1.5} strokeDasharray="3 2"/>
-        <line x1={xOf(max)} y1={midY-10} x2={xOf(max)} y2={midY+10} stroke="#555" strokeWidth={1.5}/>
-        <line x1={xOf(min)} y1={midY-10} x2={xOf(min)} y2={midY+10} stroke="#555" strokeWidth={1.5}/>
+        <line x1={xOf(max)} y1={midY} x2={xOf(q3)} y2={midY} style={{stroke:"var(--border-2)"}} strokeWidth={1.5} strokeDasharray="3 2"/>
+        <line x1={xOf(q1)} y1={midY} x2={xOf(min)} y2={midY} style={{stroke:"var(--border-2)"}} strokeWidth={1.5} strokeDasharray="3 2"/>
+        <line x1={xOf(max)} y1={midY-10} x2={xOf(max)} y2={midY+10} style={{stroke:"var(--text-dim)"}} strokeWidth={1.5}/>
+        <line x1={xOf(min)} y1={midY-10} x2={xOf(min)} y2={midY+10} style={{stroke:"var(--text-dim)"}} strokeWidth={1.5}/>
         {/* Boîte IQR */}
-        <rect x={boxLeft} y={midY-boxH/2} width={boxWidth} height={boxH} fill="rgba(252,76,2,0.08)" stroke="#FC4C02" strokeWidth={1} rx={3}/>
-        <line x1={xOf(median)} y1={midY-boxH/2} x2={xOf(median)} y2={midY+boxH/2} stroke="#FC4C02" strokeWidth={2.5}/>
+        <rect x={boxLeft} y={midY-boxH/2} width={boxWidth} height={boxH} fill="rgba(245,166,35,0.08)" stroke="#f5a623" strokeWidth={1} rx={3}/>
+        <line x1={xOf(median)} y1={midY-boxH/2} x2={xOf(median)} y2={midY+boxH/2} stroke="#f5a623" strokeWidth={2.5}/>
         {/* Labels */}
-        <text x={xOf(max)-6} y={midY+4} textAnchor="end" fontSize={9} fill="#555" fontFamily="var(--font-dm-mono)">{secToPaceStr(max)}</text>
-        <text x={xOf(min)+6} y={midY+4} textAnchor="start" fontSize={9} fill="#555" fontFamily="var(--font-dm-mono)">{secToPaceStr(min)}</text>
-        <text x={xOf(median)} y={midY-boxH/2-8} textAnchor="middle" fontSize={9} fill="#FC4C02" fontFamily="var(--font-dm-mono)">Méd. {secToPaceStr(median)}</text>
-        <text x={xOf(q3)} y={midY+boxH/2+14} textAnchor="middle" fontSize={8} fill="#FC4C02" opacity={0.7} fontFamily="var(--font-dm-mono)">Q1</text>
-        <text x={xOf(q1)} y={midY+boxH/2+14} textAnchor="middle" fontSize={8} fill="#FC4C02" opacity={0.7} fontFamily="var(--font-dm-mono)">Q3</text>
+        <text x={xOf(max)-6} y={midY+4} textAnchor="end" fontSize={9} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-dm-mono)">{secToPaceStr(max)}</text>
+        <text x={xOf(min)+6} y={midY+4} textAnchor="start" fontSize={9} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-dm-mono)">{secToPaceStr(min)}</text>
+        <text x={xOf(median)} y={midY-boxH/2-8} textAnchor="middle" fontSize={9} fill="#f5a623" fontFamily="var(--font-dm-mono)">Méd. {secToPaceStr(median)}</text>
+        <text x={xOf(q3)} y={midY+boxH/2+14} textAnchor="middle" fontSize={8} fill="#f5a623" opacity={0.7} fontFamily="var(--font-dm-mono)">Q1</text>
+        <text x={xOf(q1)} y={midY+boxH/2+14} textAnchor="middle" fontSize={8} fill="#f5a623" opacity={0.7} fontFamily="var(--font-dm-mono)">Q3</text>
         {/* Points */}
         {paces.map(p=>{const px=xOf(paceToSec(p.speed)),isSel=p.id===selectedId,isHov=p.id===hoveredId;return(
           <g key={p.id} onClick={()=>onSelect(p.id===selectedId?-1:p.id)} onMouseEnter={()=>onHover(p.id)} onMouseLeave={()=>onHover(null)} style={{cursor:"pointer"}}>
             <rect x={px-12} y={midY-12} width={24} height={24} fill="transparent"/>
-            <circle cx={px} cy={midY} r={isSel||isHov?8:5} fill={isSel?"#fff":isHov?"rgba(255,255,255,0.8)":"rgba(252,76,2,0.55)"} stroke={isSel||isHov?"#FC4C02":"rgba(252,76,2,0.2)"} strokeWidth={isSel||isHov?2:1}/>
-            {isSel&&<text x={px} y={midY-16} textAnchor="middle" fontSize={9} fill="#FC4C02" fontFamily="var(--font-dm-mono)">{fmtPace(p.speed)}</text>}
+            <circle cx={px} cy={midY} r={isSel||isHov?8:5} fill={isSel?"#fff":isHov?"rgba(255,255,255,0.8)":"rgba(245,166,35,0.55)"} stroke={isSel||isHov?"#f5a623":"rgba(245,166,35,0.2)"} strokeWidth={isSel||isHov?2:1}/>
+            {isSel&&<text x={px} y={midY-16} textAnchor="middle" fontSize={9} fill="#f5a623" fontFamily="var(--font-dm-mono)">{fmtPace(p.speed)}</text>}
           </g>
         );})}
       </svg>
       <div style={{display:"flex",gap:16,marginTop:6}}>
-        {[{c:"#555",l:`Max · ${secToPaceStr(max)}`},{c:"#FC4C02",l:`Médiane · ${secToPaceStr(median)}`},{c:"#1d9e75",l:`Min · ${secToPaceStr(min)} ← PR`}].map(({c,l})=><span key={l} style={{fontSize:11,color:c,fontFamily:"var(--font-dm-mono)"}}>{l}</span>)}
+        {[{c:"var(--text-muted)",l:`Max · ${secToPaceStr(max)}`},{c:"#f5a623",l:`Médiane · ${secToPaceStr(median)}`},{c:"#1d9e75",l:`Min · ${secToPaceStr(min)} ← PR`}].map(({c,l})=><span key={l} style={{fontSize:11,color:c,fontFamily:"var(--font-dm-mono)"}}>{l}</span>)}
       </div>
     </div>
   );
@@ -92,16 +92,16 @@ function EvolutionLine({ paces, selectedId, hoveredId, onSelect, onHover }: { pa
     <div>
       <p style={{...lbl,margin:"0 0 10px"}}>Évolution de l'allure</p>
       <svg width="100%" viewBox={`0 0 ${W} ${H}`} onMouseLeave={()=>onHover(null)}>
-        <line x1={padL} y1={yOf(prSpeed)} x2={W-padR} y2={yOf(prSpeed)} stroke="#FC4C02" strokeWidth={1} strokeDasharray="4 3" opacity={.35}/>
-        <path d={pathD} fill="none" stroke="#FC4C02" strokeWidth={1.5} strokeLinecap="round"/>
+        <line x1={padL} y1={yOf(prSpeed)} x2={W-padR} y2={yOf(prSpeed)} stroke="#f5a623" strokeWidth={1} strokeDasharray="4 3" opacity={.35}/>
+        <path d={pathD} fill="none" stroke="#f5a623" strokeWidth={1.5} strokeLinecap="round"/>
         {chrono.map((p,i)=>{const isSel=p.id===selectedId,isHov=p.id===hoveredId,isPR=i===prIdx;return(
           <g key={p.id} onClick={()=>onSelect(p.id===selectedId?-1:p.id)} onMouseEnter={()=>onHover(p.id)} onMouseLeave={()=>onHover(null)} style={{cursor:"pointer"}}>
             <rect x={xOf(i)-14} y={yOf(p.speed)-14} width={28} height={28} fill="transparent"/>
-            <circle cx={xOf(i)} cy={yOf(p.speed)} r={isSel||isHov?7:isPR?5:3} fill={isSel?"#fff":isHov?"rgba(255,255,255,0.85)":isPR?"#FC4C02":"#555"} stroke={isSel||isHov?"#FC4C02":"none"} strokeWidth={2}/>
-            {isSel&&<text x={xOf(i)} y={yOf(p.speed)-12} textAnchor="middle" fontSize={9} fill="#FC4C02" fontFamily="var(--font-dm-mono)">{fmtPace(p.speed)}</text>}
+            <circle cx={xOf(i)} cy={yOf(p.speed)} r={isSel||isHov?7:isPR?5:3} fill={isSel?"#fff":isHov?"rgba(255,255,255,0.85)":isPR?"#f5a623":"var(--text-dim)"} stroke={isSel||isHov?"#f5a623":"none"} strokeWidth={2}/>
+            {isSel&&<text x={xOf(i)} y={yOf(p.speed)-12} textAnchor="middle" fontSize={9} fill="#f5a623" fontFamily="var(--font-dm-mono)">{fmtPace(p.speed)}</text>}
           </g>
         );})}
-        {chrono.filter((_,i)=>i===0||i===chrono.length-1||i%step===0).map(p=>{const i=chrono.indexOf(p);return<text key={p.id} x={xOf(i)} y={H-4} textAnchor="middle" fontSize={8} fill="#555" fontFamily="var(--font-geist)">{fmtDate(p.date)}</text>;})}
+        {chrono.filter((_,i)=>i===0||i===chrono.length-1||i%step===0).map(p=>{const i=chrono.indexOf(p);return<text key={p.id} x={xOf(i)} y={H-4} textAnchor="middle" fontSize={8} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-geist)">{fmtDate(p.date)}</text>;})}
       </svg>
     </div>
   );
@@ -219,9 +219,12 @@ export default function AnalysePage() {
   function getTime(a:Activity):number { return timeField==="elapsed_time"?a.elapsed_time:a.moving_time; }
 
   const parcoursActif=parcoursList.find(p=>p.id===selectedParcours)??null;
-  const actsForParcours=activities
+  // Sans filtre groupe — utilisé pour les calculs de récupération (jours entre sorties)
+  const actsForParcoursNoGroupFilter=activities
     .filter(a=>associations.get(a.id)?.id===selectedParcours)
     .filter(a=>filterAnnee==="tout"||a.start_date_local.startsWith(filterAnnee))
+    .sort((a,b)=>new Date(b.start_date_local).getTime()-new Date(a.start_date_local).getTime());
+  const actsForParcours=actsForParcoursNoGroupFilter
     .filter(a=>{
       const comps=stravaCompagnons.get(a.id)??[];
       const isGroupe=(a.athlete_count??1)>1||comps.length>0;
@@ -229,8 +232,7 @@ export default function AnalysePage() {
       if(filterGroupe==="groupe"&&!isGroupe) return false;
       if(filterGroupe.startsWith("comp_")){const cId=filterGroupe.replace("comp_","");if(!comps.some(c=>c.id===cId))return false;}
       return true;
-    })
-    .sort((a,b)=>new Date(b.start_date_local).getTime()-new Date(a.start_date_local).getTime());
+    });
   const anneesDisponibles=Array.from(new Set(activities.filter(a=>associations.get(a.id)?.id===selectedParcours).map(a=>a.start_date_local.substring(0,4)))).sort((a,b)=>b.localeCompare(a));
   const paces=actsForParcours.map(a=>{const p=associations.get(a.id);const speed=p?.distance_km?(p.distance_km*1000)/getTime(a):a.average_speed;return{speed,date:a.start_date_local,id:a.id};});
   const selectedActivity=selectedActivityId&&selectedActivityId>0?actsForParcours.find(a=>a.id===selectedActivityId)??null:null;
@@ -248,7 +250,7 @@ export default function AnalysePage() {
         {loading?(
           <div style={{textAlign:"center",padding:"60px 0",color:"var(--text-dim)",fontSize:13}}>Chargement...</div>
         ):(!isLoggedIn && !isDemo)?(
-          <div style={{textAlign:"center",padding:"60px 0"}}><p style={{fontSize:13,color:"var(--text-dim)",fontFamily:"var(--font-geist)",margin:"0 0 16px"}}>Connecte-toi pour accéder aux analyses.</p><a href="/login" style={{fontSize:13,color:"#FC4C02",fontFamily:"var(--font-geist)",textDecoration:"none"}}>Se connecter →</a></div>
+          <div style={{textAlign:"center",padding:"60px 0"}}><p style={{fontSize:13,color:"var(--text-dim)",fontFamily:"var(--font-geist)",margin:"0 0 16px"}}>Connecte-toi pour accéder aux analyses.</p><a href="/login" style={{fontSize:13,color:"#f5a623",fontFamily:"var(--font-geist)",textDecoration:"none"}}>Se connecter →</a></div>
         ):parcoursList.length===0?(
           <div style={{textAlign:"center",padding:"60px 0"}}><p style={{fontSize:13,color:"var(--text-dim)",fontFamily:"var(--font-geist)"}}>Aucun parcours associé. Associe des parcours à tes activités dans Mes Courses.</p></div>
         ):(
@@ -260,7 +262,7 @@ export default function AnalysePage() {
                 {parcoursList.filter(p=>activities.some(a=>associations.get(a.id)?.id===p.id)).map(p=>{
                   const count=activities.filter(a=>associations.get(a.id)?.id===p.id).length;
                   const active=selectedParcours===p.id;
-                  return<button key={p.id} onClick={()=>{setSelectedParcours(p.id);setSelectedActivityId(null);setFilterGroupe("tout");setFilterAnnee("tout");setHoveredId(null);}} style={{padding:"7px 16px",borderRadius:20,fontSize:13,fontFamily:"var(--font-geist)",cursor:"pointer",transition:"all .15s",border:active?"0.5px solid #FC4C02":"0.5px solid var(--border-2)",background:active?"rgba(252,76,2,0.12)":"transparent",color:active?"#FC4C02":"var(--text-dim)"}}>
+                  return<button key={p.id} onClick={()=>{setSelectedParcours(p.id);setSelectedActivityId(null);setFilterGroupe("tout");setFilterAnnee("tout");setHoveredId(null);}} style={{padding:"7px 16px",borderRadius:20,fontSize:13,fontFamily:"var(--font-geist)",cursor:"pointer",transition:"all .15s",border:active?"0.5px solid #f5a623":"0.5px solid var(--border-2)",background:active?"rgba(245,166,35,0.12)":"transparent",color:active?"#f5a623":"var(--text-dim)"}}>
                     {p.nom} <span style={{opacity:.6,fontSize:11}}>({count})</span>
                   </button>;
                 })}
@@ -270,7 +272,7 @@ export default function AnalysePage() {
             {/* Filtre année */}
             {anneesDisponibles.length>1&&<div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:16}}>
               <p style={{...lbl,margin:"0 8px 0 0",alignSelf:"center"}}>Année</p>
-              {["tout",...anneesDisponibles].map(a=>{const active=filterAnnee===a;return<button key={a} onClick={()=>{setFilterAnnee(a);setSelectedActivityId(null);setHoveredId(null);}} style={{padding:"5px 12px",borderRadius:20,fontSize:12,border:active?"0.5px solid #FC4C02":"0.5px solid var(--border-2)",background:active?"rgba(252,76,2,0.12)":"transparent",color:active?"#FC4C02":"var(--text-dim)",cursor:"pointer",fontFamily:"var(--font-geist)",transition:"all .15s"}}>{a==="tout"?"Tout":a}</button>;})}
+              {["tout",...anneesDisponibles].map(a=>{const active=filterAnnee===a;return<button key={a} onClick={()=>{setFilterAnnee(a);setSelectedActivityId(null);setHoveredId(null);}} style={{padding:"5px 12px",borderRadius:20,fontSize:12,border:active?"0.5px solid #f5a623":"0.5px solid var(--border-2)",background:active?"rgba(245,166,35,0.12)":"transparent",color:active?"#f5a623":"var(--text-dim)",cursor:"pointer",fontFamily:"var(--font-geist)",transition:"all .15s"}}>{a==="tout"?"Tout":a}</button>;})}
             </div>}
 
             {/* Filtre groupe */}
@@ -278,7 +280,7 @@ export default function AnalysePage() {
               <p style={{...lbl,margin:"0 8px 0 0",alignSelf:"center"}}>Groupe</p>
               {([["tout","Tous"],["solo","Solo"],["groupe","En groupe"]] as const).map(([v,label])=>{
                 const active=filterGroupe===v;
-                return<button key={v} onClick={()=>{setFilterGroupe(v);setSelectedActivityId(null);setHoveredId(null);}} style={{padding:"5px 12px",borderRadius:20,fontSize:12,border:active?"0.5px solid #FC4C02":"0.5px solid var(--border-2)",background:active?"rgba(252,76,2,0.12)":"transparent",color:active?"#FC4C02":"var(--text-dim)",cursor:"pointer",fontFamily:"var(--font-geist)",transition:"all .15s"}}>{label}</button>;
+                return<button key={v} onClick={()=>{setFilterGroupe(v);setSelectedActivityId(null);setHoveredId(null);}} style={{padding:"5px 12px",borderRadius:20,fontSize:12,border:active?"0.5px solid #f5a623":"0.5px solid var(--border-2)",background:active?"rgba(245,166,35,0.12)":"transparent",color:active?"#f5a623":"var(--text-dim)",cursor:"pointer",fontFamily:"var(--font-geist)",transition:"all .15s"}}>{label}</button>;
               })}
               {compagnonsPacelab.filter(c=>c.actif&&activities.some(a=>associations.get(a.id)?.id===selectedParcours&&stravaCompagnons.get(a.id)?.some(sc=>sc.id===c.id))).map(c=>{
                 const v="comp_"+c.id,active=filterGroupe===v;
@@ -336,10 +338,10 @@ export default function AnalysePage() {
 
                 {/* Sortie sélectionnée */}
                 {selectedActivity&&selPaceNum&&(
-                  <div style={{background:"rgba(252,76,2,0.04)",border:"0.5px solid rgba(252,76,2,0.2)",borderRadius:10,padding:"14px 18px",marginBottom:16,display:"flex",gap:24,alignItems:"center",flexWrap:"wrap"}}>
-                    <div><p style={{...lbl,margin:"0 0 2px",color:"#FC4C02"}}>Sortie sélectionnée</p><p style={{fontSize:13,color:"var(--text-primary)",margin:0,fontFamily:"var(--font-geist)"}}>{fmtDate(selectedActivity.start_date_local)}</p></div>
+                  <div style={{background:"rgba(245,166,35,0.04)",border:"0.5px solid rgba(245,166,35,0.2)",borderRadius:10,padding:"14px 18px",marginBottom:16,display:"flex",gap:24,alignItems:"center",flexWrap:"wrap"}}>
+                    <div><p style={{...lbl,margin:"0 0 2px",color:"#f5a623"}}>Sortie sélectionnée</p><p style={{fontSize:13,color:"var(--text-primary)",margin:0,fontFamily:"var(--font-geist)"}}>{fmtDate(selectedActivity.start_date_local)}</p></div>
                     {[{l:"Allure",v:fmtPace(selPaceNum)},{l:"Temps",v:fmtTime(getTime(selectedActivity))},{l:"D+",v:`+${Math.round(selectedActivity.total_elevation_gain)}m`},{l:"Groupe",v:(selectedActivity.athlete_count??1)>1?"👥 Groupe":"Solo"}].map(({l,v})=>(
-                      <div key={l}><p style={{...lbl,margin:"0 0 2px"}}>{l}</p><p style={{fontSize:15,fontWeight:500,color:"#FC4C02",margin:0,fontFamily:"var(--font-dm-mono)"}}>{v}</p></div>
+                      <div key={l}><p style={{...lbl,margin:"0 0 2px"}}>{l}</p><p style={{fontSize:15,fontWeight:500,color:"#f5a623",margin:0,fontFamily:"var(--font-dm-mono)"}}>{v}</p></div>
                     ))}
                     {selectedActivity.private_note&&<p style={{fontSize:12,color:"var(--text-dim)",margin:0,fontFamily:"var(--font-geist)",fontStyle:"italic",flex:1}}>{selectedActivity.private_note}</p>}
                     <button onClick={()=>setSelectedActivityId(null)} style={{background:"transparent",border:"none",color:"var(--text-dim)",cursor:"pointer",fontSize:16}}>✕</button>
@@ -414,20 +416,20 @@ export default function AnalysePage() {
                           const x=xOf(i),y=yOf(avgSpd),isPR=false; // isPR non utilisé par mois
                           const mIdx=parseInt(m.split("-")[1])-1;
                           return<g key={m}>
-                            <line x1={x} y1={padT} x2={x} y2={H-padB} stroke="#1a1a1a" strokeWidth={1}/>
-                            <circle cx={x} cy={y} r={isPR?7:5} fill={isPR?"#FC4C02":"rgba(252,76,2,0.5)"}/>
-                            <text x={x} y={H-4} textAnchor="middle" fontSize={9} fill="#555" fontFamily="var(--font-geist)">{MOIS[mIdx]} {m.split("-")[0].slice(2)}</text>
-                            <text x={x} y={y-10} textAnchor="middle" fontSize={8} fill={isPR?"#FC4C02":"#888"} fontFamily="var(--font-dm-mono)">{fmtPace(avgSpd)}</text>
-                            {v.count>1&&<text x={x} y={y+20} textAnchor="middle" fontSize={7} fill="#444" fontFamily="var(--font-geist)">×{v.count}</text>}
+                            <line x1={x} y1={padT} x2={x} y2={H-padB} style={{stroke:"var(--border)"}} strokeWidth={1}/>
+                            <circle cx={x} cy={y} r={isPR?7:5} fill={isPR?"#f5a623":"rgba(245,166,35,0.5)"}/>
+                            <text x={x} y={H-4} textAnchor="middle" fontSize={9} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-geist)">{MOIS[mIdx]} {m.split("-")[0].slice(2)}</text>
+                            <text x={x} y={y-10} textAnchor="middle" fontSize={8} style={{fill:isPR?"#f5a623":"var(--text-muted)"}} fontFamily="var(--font-dm-mono)">{fmtPace(avgSpd)}</text>
+                            {v.count>1&&<text x={x} y={y+20} textAnchor="middle" fontSize={7} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-geist)">×{v.count}</text>}
                           </g>;
                         })}
-                        <polyline points={months.map(([,v],i)=>`${xOf(i)},${yOf(v.speeds.reduce((a,b)=>a+b,0)/v.speeds.length)}`).join(" ")} fill="none" stroke="#FC4C02" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"/>
+                        <polyline points={months.map(([,v],i)=>`${xOf(i)},${yOf(v.speeds.reduce((a,b)=>a+b,0)/v.speeds.length)}`).join(" ")} fill="none" stroke="#f5a623" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"/>
                         {/* Y axis labels */}
-                        <text x={padL-4} y={yOf(minSpd)+4} textAnchor="end" fontSize={8} fill="#555" fontFamily="var(--font-dm-mono)">{fmtPace(minSpd)}</text>
-                        <text x={padL-4} y={yOf(maxSpd)+4} textAnchor="end" fontSize={8} fill="#555" fontFamily="var(--font-dm-mono)">{fmtPace(maxSpd)}</text>
+                        <text x={padL-4} y={yOf(minSpd)+4} textAnchor="end" fontSize={8} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-dm-mono)">{fmtPace(minSpd)}</text>
+                        <text x={padL-4} y={yOf(maxSpd)+4} textAnchor="end" fontSize={8} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-dm-mono)">{fmtPace(maxSpd)}</text>
                         {/* Ligne PR */}
-                        <line x1={padL} y1={yOf(globalPRSpeed)} x2={W-padR} y2={yOf(globalPRSpeed)} stroke="#FC4C02" strokeWidth={1} strokeDasharray="4 3" opacity={0.5}/>
-                        <text x={padL+6} y={yOf(globalPRSpeed)-4} fontSize={9} fill="#FC4C02" fontFamily="var(--font-geist)">PR {fmtPace(globalPRSpeed)}</text>
+                        <line x1={padL} y1={yOf(globalPRSpeed)} x2={W-padR} y2={yOf(globalPRSpeed)} stroke="#f5a623" strokeWidth={1} strokeDasharray="4 3" opacity={0.5}/>
+                        <text x={padL+6} y={yOf(globalPRSpeed)-4} fontSize={9} fill="#f5a623" fontFamily="var(--font-geist)">PR {fmtPace(globalPRSpeed)}</text>
                       </svg>
                     </div>
                   );
@@ -435,8 +437,8 @@ export default function AnalysePage() {
 
                 {/* ── 3. Récupération entre sorties ─────────────────────── */}
                 {(()=>{
-                  if(actsForParcours.length<4) return null;
-                  const chrono=[...actsForParcours].reverse();
+                  if(actsForParcoursNoGroupFilter.length<4) return null;
+                  const chrono=[...actsForParcoursNoGroupFilter].reverse();
                   const points=chrono.slice(1).map((a,i)=>{
                     const prev=chrono[i];
                     const days=Math.round((new Date(a.start_date_local).getTime()-new Date(prev.start_date_local).getTime())/(86400000));
@@ -467,22 +469,22 @@ export default function AnalysePage() {
                         {/* Grille X tous les 2j */}
                         {Array.from({length:Math.ceil(maxDays/2)},(_,i)=>(i+1)*2).filter(d=>d<=maxDays).map(d=>(
                           <g key={d}>
-                            <line x1={xOf(d)} y1={padT} x2={xOf(d)} y2={H-padB} stroke="#1a1a1a" strokeWidth={1}/>
-                            <text x={xOf(d)} y={H-4} textAnchor="middle" fontSize={8} fill="#444" fontFamily="var(--font-geist)">{d}j</text>
+                            <line x1={xOf(d)} y1={padT} x2={xOf(d)} y2={H-padB} style={{stroke:"var(--border)"}} strokeWidth={1}/>
+                            <text x={xOf(d)} y={H-4} textAnchor="middle" fontSize={8} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-geist)">{d}j</text>
                           </g>
                         ))}
                         {/* Grille Y */}
                         {[minSpd,maxSpd].map((s,i)=>(
                           <g key={i}>
-                            <line x1={padL} y1={yOf(s)} x2={W-padR} y2={yOf(s)} stroke="#1a1a1a" strokeWidth={1} strokeDasharray="3 2"/>
-                            <text x={padL-4} y={yOf(s)+4} textAnchor="end" fontSize={8} fill="#555" fontFamily="var(--font-dm-mono)">{fmtPace(s)}</text>
+                            <line x1={padL} y1={yOf(s)} x2={W-padR} y2={yOf(s)} style={{stroke:"var(--border)"}} strokeWidth={1} strokeDasharray="3 2"/>
+                            <text x={padL-4} y={yOf(s)+4} textAnchor="end" fontSize={8} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-dm-mono)">{fmtPace(s)}</text>
                           </g>
                         ))}
                         {points.map(p=>{const isSel=p.id===selectedActivityId,isHov=p.id===hoveredId;return(
                           <g key={p.id} onClick={()=>setSelectedActivityId(p.id===selectedActivityId?null:p.id)} onMouseEnter={()=>setHoveredId(p.id)} onMouseLeave={()=>setHoveredId(null)} style={{cursor:"pointer"}}>
                             <rect x={xOf(p.days)-12} y={yOf(p.speed)-12} width={24} height={24} fill="transparent"/>
-                            <circle cx={xOf(p.days)} cy={yOf(p.speed)} r={isSel||isHov?7:4} fill={isSel?"#fff":isHov?"rgba(255,255,255,0.8)":"rgba(252,76,2,0.6)"} stroke={isSel||isHov?"#FC4C02":"rgba(252,76,2,0.2)"} strokeWidth={isSel||isHov?2:1}/>
-            {isSel&&<text x={xOf(p.days)} y={yOf(p.speed)-12} textAnchor="middle" fontSize={9} fill="#FC4C02" fontFamily="var(--font-dm-mono)">{fmtPace(p.speed)}</text>}
+                            <circle cx={xOf(p.days)} cy={yOf(p.speed)} r={isSel||isHov?7:4} fill={isSel?"#fff":isHov?"rgba(255,255,255,0.8)":"rgba(245,166,35,0.6)"} stroke={isSel||isHov?"#f5a623":"rgba(245,166,35,0.2)"} strokeWidth={isSel||isHov?2:1}/>
+            {isSel&&<text x={xOf(p.days)} y={yOf(p.speed)-12} textAnchor="middle" fontSize={9} fill="#f5a623" fontFamily="var(--font-dm-mono)">{fmtPace(p.speed)}</text>}
                           </g>
                         );})}
                       </svg>
@@ -514,12 +516,12 @@ export default function AnalysePage() {
                   const dateStr=datePR.toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});
                   const predictedPRSec=intercept+slope*(n+sortiesRestantes-1);
                   return(
-                    <div style={{...card,marginBottom:16,background:"rgba(252,76,2,0.03)",border:"0.5px solid rgba(252,76,2,0.15)"}}>
-                      <p style={{...lbl,color:"#FC4C02",margin:"0 0 12px"}}>Prédicteur de PR</p>
+                    <div style={{...card,marginBottom:16,background:"rgba(245,166,35,0.03)",border:"0.5px solid rgba(245,166,35,0.15)"}}>
+                      <p style={{...lbl,color:"#f5a623",margin:"0 0 12px"}}>Prédicteur de PR</p>
                       <div style={{display:"flex",gap:20,flexWrap:"wrap",alignItems:"center"}}>
                         <div><p style={{...lbl,margin:"0 0 4px"}}>PR actuel</p><p style={{fontSize:22,fontWeight:500,color:"var(--text-primary)",margin:0,fontFamily:"var(--font-dm-mono)"}}>{secToPaceStr(currentBestSec)}</p></div>
-                        <div style={{fontSize:20,color:"#333"}}>→</div>
-                        <div><p style={{...lbl,margin:"0 0 4px"}}>PR prédit</p><p style={{fontSize:22,fontWeight:500,color:"#FC4C02",margin:0,fontFamily:"var(--font-dm-mono)"}}>{secToPaceStr(predictedPRSec)}</p></div>
+                        <div style={{fontSize:20,color:"var(--text-dim)"}}>→</div>
+                        <div><p style={{...lbl,margin:"0 0 4px"}}>PR prédit</p><p style={{fontSize:22,fontWeight:500,color:"#f5a623",margin:0,fontFamily:"var(--font-dm-mono)"}}>{secToPaceStr(predictedPRSec)}</p></div>
                         <div><p style={{...lbl,margin:"0 0 4px"}}>Dans environ</p><p style={{fontSize:22,fontWeight:500,color:"var(--text-primary)",margin:0,fontFamily:"var(--font-dm-mono)"}}>{sortiesRestantes} sorties</p></div>
                         <div><p style={{...lbl,margin:"0 0 4px"}}>Date estimée</p><p style={{fontSize:14,fontWeight:500,color:"var(--text-muted)",margin:0,fontFamily:"var(--font-geist)"}}>{dateStr}</p></div>
                       </div>
@@ -554,21 +556,21 @@ export default function AnalysePage() {
                       <p style={{...lbl,margin:"0 0 4px"}}>Charge d'entraînement</p>
                       <p style={{fontSize:11,color:"var(--text-dim)",margin:"0 0 14px",fontFamily:"var(--font-geist)"}}>Km courus par semaine (20 dernières semaines) · Moy: {avgKm.toFixed(1)} km/sem</p>
                       <svg width="100%" viewBox={`0 0 ${W} ${H}`}>
-                        <line x1={padL} y1={padT+(1-avgKm/maxKm)*(H-padT-padB)} x2={W-padR} y2={padT+(1-avgKm/maxKm)*(H-padT-padB)} stroke="#FC4C02" strokeWidth={1} strokeDasharray="4 3" opacity={.4}/>
+                        <line x1={padL} y1={padT+(1-avgKm/maxKm)*(H-padT-padB)} x2={W-padR} y2={padT+(1-avgKm/maxKm)*(H-padT-padB)} stroke="#f5a623" strokeWidth={1} strokeDasharray="4 3" opacity={.4}/>
                         {weeks.map(([wk,v],i)=>{
                           const barH=Math.max(2,(v.km/maxKm)*(H-padT-padB));
                           const bW=barSpacing*0.7,x=xOf(i)-bW/2,y=H-padB-barH;
                           const isAboveAvg=v.km>avgKm;
                           return<g key={wk}>
-                            <rect x={x} y={y} width={bW} height={barH} fill={isAboveAvg?"rgba(252,76,2,0.7)":"rgba(252,76,2,0.3)"} rx={2}/>
-                            {barH>12&&<text x={xOf(i)} y={y-3} textAnchor="middle" fontSize={7} fill={isAboveAvg?"#FC4C02":"#555"} fontFamily="var(--font-dm-mono)">{v.km.toFixed(1)}</text>}
-                            {i%4===0&&<text x={xOf(i)} y={H-4} textAnchor="middle" fontSize={8} fill="#555" fontFamily="var(--font-geist)">{wk.slice(5,10).replace("-",".")}</text>}
+                            <rect x={x} y={y} width={bW} height={barH} fill={isAboveAvg?"rgba(245,166,35,0.7)":"rgba(245,166,35,0.3)"} rx={2}/>
+                            {barH>12&&<text x={xOf(i)} y={y-3} textAnchor="middle" fontSize={7} style={{fill:isAboveAvg?"#f5a623":"var(--text-dim)"}} fontFamily="var(--font-dm-mono)">{v.km.toFixed(1)}</text>}
+                            {i%4===0&&<text x={xOf(i)} y={H-4} textAnchor="middle" fontSize={8} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-geist)">{wk.slice(5,10).replace("-",".")}</text>}
                           </g>;
                         })}
-                        <line x1={padL} y1={padT} x2={W-padR} y2={padT} stroke="#1a1a1a" strokeWidth={1}/>
-                        <text x={padL-4} y={padT+4} textAnchor="end" fontSize={8} fill="#555" fontFamily="var(--font-dm-mono)">{maxKm.toFixed(0)} km</text>
-                        <line x1={padL} y1={H-padB} x2={W-padR} y2={H-padB} stroke="#1a1a1a" strokeWidth={1}/>
-                        <text x={padL-4} y={H-padB+4} textAnchor="end" fontSize={8} fill="#555" fontFamily="var(--font-dm-mono)">0</text>
+                        <line x1={padL} y1={padT} x2={W-padR} y2={padT} style={{stroke:"var(--border)"}} strokeWidth={1}/>
+                        <text x={padL-4} y={padT+4} textAnchor="end" fontSize={8} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-dm-mono)">{maxKm.toFixed(0)} km</text>
+                        <line x1={padL} y1={H-padB} x2={W-padR} y2={H-padB} style={{stroke:"var(--border)"}} strokeWidth={1}/>
+                        <text x={padL-4} y={H-padB+4} textAnchor="end" fontSize={8} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-dm-mono)">0</text>
                       </svg>
                     </div>
                   );
@@ -595,17 +597,17 @@ export default function AnalysePage() {
                             {Array.from({length:12},(_,mIdx)=>{
                               const monthActs=yearActs.filter(a=>parseInt(a.start_date_local.substring(5,7))-1===mIdx);
                               return<div key={mIdx}>
-                                <p style={{fontSize:9,color:"#444",margin:"0 0 4px",fontFamily:"var(--font-geist)",textAlign:"center"}}>{MOIS[mIdx]}</p>
+                                <p style={{fontSize:9,color:"var(--text-dim)",margin:"0 0 4px",fontFamily:"var(--font-geist)",textAlign:"center"}}>{MOIS[mIdx]}</p>
                                 <div style={{display:"flex",flexDirection:"column",gap:3}}>
                                   {monthActs.length===0
-                                    ?<div style={{height:24,borderRadius:4,background:"#111",border:"0.5px solid #1a1a1a"}}/>
+                                    ?<div style={{height:24,borderRadius:4,background:"var(--surface-2)",border:"0.5px solid var(--border)"}}/>
                                     :monthActs.map(a=>{
                                       const p=associations.get(a.id);
                                       const speed=p?.distance_km?(p.distance_km*1000)/a.moving_time:a.average_speed;
                                       const intensity=(speed-worstSpeed)/rng; // 0=lent, 1=rapide
                                       const opacity=0.2+intensity*0.8;
                                       const isSelH=a.id===selectedActivityId,isHovH=a.id===hoveredId;
-                      return<div key={a.id} title={`${fmtDate(a.start_date_local)} · ${fmtPace(speed)}`} onMouseEnter={()=>setHoveredId(a.id)} onMouseLeave={()=>setHoveredId(null)} onClick={()=>setSelectedActivityId(a.id===selectedActivityId?null:a.id)} style={{height:isSelH?30:24,borderRadius:4,background:isSelH?"#FC4C02":isHovH?`rgba(252,76,2,${Math.min(1,opacity+0.3)})`:(`rgba(252,76,2,${opacity})`),border:isSelH?"2px solid #fff":isHovH?"0.5px solid #FC4C02":"0.5px solid rgba(252,76,2,0.2)",cursor:"pointer",transition:"all .15s",boxShadow:isSelH?"0 0 8px rgba(252,76,2,0.6)":"none"}}/>;
+                      return<div key={a.id} title={`${fmtDate(a.start_date_local)} · ${fmtPace(speed)}`} onMouseEnter={()=>setHoveredId(a.id)} onMouseLeave={()=>setHoveredId(null)} onClick={()=>setSelectedActivityId(a.id===selectedActivityId?null:a.id)} style={{height:isSelH?30:24,borderRadius:4,background:isSelH?"#f5a623":isHovH?`rgba(245,166,35,${Math.min(1,opacity+0.3)})`:(`rgba(245,166,35,${opacity})`),border:isSelH?"2px solid #fff":isHovH?"0.5px solid #f5a623":"0.5px solid rgba(245,166,35,0.2)",cursor:"pointer",transition:"all .15s",boxShadow:isSelH?"0 0 8px rgba(245,166,35,0.6)":"none"}}/>;
                                     })
                                   }
                                 </div>
@@ -616,7 +618,7 @@ export default function AnalysePage() {
                       })}
                       <div style={{display:"flex",alignItems:"center",gap:8,marginTop:8}}>
                         <span style={{fontSize:10,color:"var(--text-dim)",fontFamily:"var(--font-geist)"}}>Lent</span>
-                        {[.2,.4,.6,.8,1].map(o=><div key={o} style={{width:16,height:10,borderRadius:2,background:`rgba(252,76,2,${o})`}}/>)}
+                        {[.2,.4,.6,.8,1].map(o=><div key={o} style={{width:16,height:10,borderRadius:2,background:`rgba(245,166,35,${o})`}}/>)}
                         <span style={{fontSize:10,color:"var(--text-dim)",fontFamily:"var(--font-geist)"}}>Rapide</span>
                       </div>
                     </div>
@@ -627,16 +629,16 @@ export default function AnalysePage() {
                 <div style={{...card,padding:0,overflow:"hidden",marginBottom:16}}>
                   <div style={{padding:"12px 18px",borderBottom:"0.5px solid var(--border)"}}><p style={{...lbl,margin:0}}>Classement — {parcoursActif.nom}</p></div>
                   <table style={{width:"100%",borderCollapse:"collapse"}}>
-                    <thead><tr style={{borderBottom:"0.5px solid #1a1a1a"}}>
+                    <thead><tr style={{borderBottom:"0.5px solid var(--border)"}}>
                       {["#","Date","Allure","Temps","D+","Groupe","Note"].map(h=><th key={h} style={{padding:"7px 14px",textAlign:"left",fontSize:10,color:"var(--text-dim)",fontWeight:400,letterSpacing:".05em",textTransform:"uppercase",fontFamily:"var(--font-geist)"}}>{h}</th>)}
                     </tr></thead>
                     <tbody>
                       {[...actsForParcours].map(a=>{const p=associations.get(a.id);const speed=p?.distance_km?(p.distance_km*1000)/getTime(a):a.average_speed;return{a,speed};}).sort((x,y)=>y.speed-x.speed).map(({a,speed},rank)=>{
                         const isSel=a.id===selectedActivityId,isHov=a.id===hoveredId,isPR=rank===0;
-                        return<tr key={a.id} onClick={()=>setSelectedActivityId(a.id===selectedActivityId?null:a.id)} onMouseEnter={()=>setHoveredId(a.id)} onMouseLeave={()=>setHoveredId(null)} style={{borderBottom:"0.5px solid #1a1a1a",background:isSel?"var(--surface-2)":a.id===hoveredId?"rgba(255,255,255,0.03)":"transparent",cursor:"pointer",transition:"background .1s"}}>
-                          <td style={{padding:"9px 14px",borderLeft:isSel||isHov?"2px solid #FC4C02":"2px solid transparent"}}>{isPR?<span style={{fontSize:10,background:"rgba(252,76,2,.15)",border:"0.5px solid #FC4C02",borderRadius:4,padding:"1px 5px",color:"#FC4C02",fontFamily:"var(--font-geist)"}}>PR</span>:<span style={{fontSize:12,color:"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>{rank+1}</span>}</td>
+                        return<tr key={a.id} onClick={()=>setSelectedActivityId(a.id===selectedActivityId?null:a.id)} onMouseEnter={()=>setHoveredId(a.id)} onMouseLeave={()=>setHoveredId(null)} style={{borderBottom:"0.5px solid var(--border)",background:isSel?"var(--surface-2)":a.id===hoveredId?"rgba(255,255,255,0.03)":"transparent",cursor:"pointer",transition:"background .1s"}}>
+                          <td style={{padding:"9px 14px",borderLeft:isSel||isHov?"2px solid #f5a623":"2px solid transparent"}}>{isPR?<span style={{fontSize:10,background:"rgba(245,166,35,.15)",border:"0.5px solid #f5a623",borderRadius:4,padding:"1px 5px",color:"#f5a623",fontFamily:"var(--font-geist)"}}>PR</span>:<span style={{fontSize:12,color:"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>{rank+1}</span>}</td>
                           <td style={{padding:"9px 14px",fontSize:12,color:"var(--text-dim)",fontFamily:"var(--font-geist)"}}>{fmtDate(a.start_date_local)}</td>
-                          <td style={{padding:"9px 14px"}}><span style={{fontSize:14,fontWeight:500,color:isPR?"#FC4C02":"var(--text-primary)",fontFamily:"var(--font-dm-mono)"}}>{fmtPace(speed)}</span></td>
+                          <td style={{padding:"9px 14px"}}><span style={{fontSize:14,fontWeight:500,color:isPR?"#f5a623":"var(--text-primary)",fontFamily:"var(--font-dm-mono)"}}>{fmtPace(speed)}</span></td>
                           <td style={{padding:"9px 14px",fontSize:12,color:"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>{fmtTime(getTime(a))}</td>
                           <td style={{padding:"9px 14px",fontSize:12,color:"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>{a.total_elevation_gain>0?`+${Math.round(a.total_elevation_gain)}m`:"—"}</td>
                           <td style={{padding:"9px 14px",fontSize:12,color:"var(--text-dim)",fontFamily:"var(--font-geist)"}}>{(a.athlete_count??1)>1?"👥":"Solo"}</td>

@@ -9,7 +9,7 @@ import ObjectifCarousel from "@/components/ObjectifCarousel";
 
 interface Athlete {
   firstname: string; lastname: string; city: string; country: string;
-  profile: string; follower_count: number; friend_count: number;
+  profile: string;
 }
 interface Activity {
   id: number; name: string; type: string; sport_type: string;
@@ -61,8 +61,8 @@ function isRun(a: Activity) { return ["Run", "TrailRun", "VirtualRun"].includes(
 
 // ─── styles ───────────────────────────────────────────────────────────────────
 
-const lbl: React.CSSProperties = { fontSize: 10, color: "var(--text-dim)", letterSpacing: "0.05em", textTransform: "uppercase", fontFamily: "var(--font-geist)", margin: "0 0 6px", display: "block" };
-const card: React.CSSProperties = { background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 10, padding: "14px 16px" };
+const lbl: React.CSSProperties = { fontSize: 10, color: "var(--text-muted)", letterSpacing: "0.05em", textTransform: "uppercase", fontFamily: "var(--font-geist)", margin: "0 0 6px", display: "block" };
+const card: React.CSSProperties = { background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 12, padding: "14px 16px" };
 
 // ─── StreakCalendar ───────────────────────────────────────────────────────────
 
@@ -109,12 +109,12 @@ function StreakCal({ activities }: { activities: Activity[] }) {
       <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
         {sems.map((s,i)=>{
           const active=s.has&&!s.fut; const pulse=s.cur&&!active&&!s.fut&&streak>=1;
-          let bg="#1a1a1a",border="0.5px solid #222",tc="#333";
+          let bg="var(--surface-2)",border="0.5px solid var(--border)",tc="var(--text-dim)";
           if(active){bg="#FC4C02";border="0.5px solid #c03a00";tc="rgba(255,255,255,.75)";}
           else if(s.cur){bg="transparent";border="0.5px solid #FC4C02";tc="#FC4C02";}
           return(
             <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center"}}>
-              {s.isNew?<div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:3,width:"100%"}}><span style={{fontSize:8,color:"#666",fontFamily:"var(--font-dm-mono)"}}>{s.yr}</span><div style={{width:"100%",height:1,background:"#444",marginTop:1}}/></div>:<div style={{height:14}}/>}
+              {s.isNew?<div style={{display:"flex",flexDirection:"column",alignItems:"center",marginBottom:3,width:"100%"}}><span style={{fontSize:8,color:"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>{s.yr}</span><div style={{width:"100%",height:1,background:"var(--border)",marginTop:1}}/></div>:<div style={{height:14}}/>}
               <div title={`S${s.wn} · ${s.mon.toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}`} style={{width:"100%",height:30,borderRadius:4,background:bg,border,outline:s.cur?"1.5px solid rgba(255,255,255,.2)":"none",outlineOffset:"2px",opacity:s.fut?.2:1,display:"flex",alignItems:"center",justifyContent:"center",animation:pulse?"s-pulse 1.8s ease-in-out infinite":"none"}}>
                 <span style={{fontSize:8,fontWeight:500,color:tc,fontFamily:"var(--font-dm-mono)"}}>{s.wn}</span>
               </div>
@@ -227,7 +227,7 @@ function EvolutionChart({ activities, associations, hoveredId, selectedId, onHov
         </div>
         <div style={{display:"flex",gap:4,background:"var(--surface-2)",border:"0.5px solid var(--border-2)",borderRadius:6,padding:3}}>
           {(["temps","allure"] as const).map((m) => (
-            <button key={m} onClick={() => setMode(m)} style={{padding:"3px 10px",borderRadius:4,fontSize:11,border:"none",cursor:"pointer",fontFamily:"var(--font-geist)",background:mode===m?"#FC4C02":"transparent",color:mode===m?"#fff":"var(--text-dim)"}}>
+            <button key={m} onClick={() => setMode(m)} style={{padding:"3px 10px",borderRadius:4,fontSize:11,border:"none",cursor:"pointer",fontFamily:"var(--font-geist)",background:mode===m?"#f5a623":"transparent",color:mode===m?"#fff":"var(--text-dim)"}}>
               {m === "temps" ? "Temps" : "Allure"}
             </button>
           ))}
@@ -235,17 +235,17 @@ function EvolutionChart({ activities, associations, hoveredId, selectedId, onHov
       </div>
 
       {/* Tooltip — espace constant pour éviter le tremblotement */}
-      <div style={{height:32,marginBottom:8,display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{display:"flex",alignItems:"center",gap:8,padding:"0 12px",background:"rgba(40,40,40,0.85)",borderRadius:8,border:"0.5px solid #2a2a2a",height:28,width:"fit-content"}}>
+      <div style={{height:32,marginBottom:8,display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{display:"flex",alignItems:"center",gap:8,padding:"0 12px",background:"var(--surface-2)",borderRadius:8,border:"0.5px solid var(--border-2)",height:28,width:"fit-content"}}>
         {activePoint ? (
           <>
-            <span style={{fontSize:11,color:"#888",fontFamily:"var(--font-geist)"}}>{activePoint.date}</span>
-            <span style={{fontSize:14,fontWeight:500,color:"#e8e8e8",fontFamily:"var(--font-dm-mono)"}}>
+            <span style={{fontSize:11,color:"var(--text-dim)",fontFamily:"var(--font-geist)"}}>{activePoint.date}</span>
+            <span style={{fontSize:14,fontWeight:500,color:"var(--text-primary)",fontFamily:"var(--font-dm-mono)"}}>
               {mode === "temps" ? fmt.time(timeField==="elapsed_time"?activePoint.elapsed_time:activePoint.moving_time) : fmt.pace(activePoint.speed)}
             </span>
             {activePoint.val === prVal && <span style={{fontSize:10,background:"rgba(252,76,2,.15)",border:"0.5px solid #FC4C02",borderRadius:4,padding:"1px 5px",color:"#FC4C02",fontFamily:"var(--font-geist)"}}>PR</span>}
 
           </>
-        ) : <span style={{fontSize:11,color:"#333",fontFamily:"var(--font-geist)"}}>Survoler un point pour afficher les détails</span>}
+        ) : <span style={{fontSize:11,color:"var(--text-dim)",fontFamily:"var(--font-geist)"}}>Survoler un point pour afficher les détails</span>}
       </div></div>
 
       {/* SVG */}
@@ -265,20 +265,20 @@ function EvolutionChart({ activities, associations, hoveredId, selectedId, onHov
           {/* Grille Y */}
           {tickVals.map((v,i)=>(
             <g key={i}>
-              <line x1={padL} y1={yOf(v)} x2={W-padR} y2={yOf(v)} stroke="#1e1e1e" strokeWidth={1}/>
-              <text x={padL-6} y={yOf(v)+4} textAnchor="end" fontSize={9} fill="#555" fontFamily="var(--font-dm-mono)">{formatYTick(v)}</text>
+              <line x1={padL} y1={yOf(v)} x2={W-padR} y2={yOf(v)} style={{stroke:"var(--border)"}} strokeWidth={1}/>
+              <text x={padL-6} y={yOf(v)+4} textAnchor="end" fontSize={9} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-dm-mono)">{formatYTick(v)}</text>
             </g>
           ))}
           {/* Axe X labels */}
           {xTicks.map((d)=>{
             const i = data.findIndex(x => x.id === d.id);
-            return <text key={d.id} x={xOf(i)} y={H+padB-4} textAnchor="middle" fontSize={9} fill="#555" fontFamily="var(--font-geist)">{d.date}</text>;
+            return <text key={d.id} x={xOf(i)} y={H+padB-4} textAnchor="middle" fontSize={9} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-geist)">{d.date}</text>;
           })}
           {/* Ligne PR */}
           <line x1={padL} y1={yOf(prVal)} x2={W-padR} y2={yOf(prVal)} stroke="#FC4C02" strokeWidth={1} strokeDasharray="4 3"/>
           <text x={padL+4} y={yOf(prVal)-4} fontSize={9} fill="#FC4C02" fontFamily="var(--font-geist)">PR</text>
           {/* Courbe */}
-          <path d={pathD} fill="none" stroke="#FC4C02" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"/>
+          <path d={pathD} fill="none" stroke="#f5a623" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"/>
           {/* Points */}
           {data.map((d,i)=>{
             const isActive=d.id===activeId; const isPR=i===prIdx;
@@ -299,7 +299,7 @@ function EvolutionChart({ activities, associations, hoveredId, selectedId, onHov
             return(
               <circle key={d.id} cx={xOf(i)} cy={yOf(d.val)} r={r}
                 fill={isActive?"#fff":ptColor}
-                stroke={isActive||d.id===selectedId?"#FC4C02":"none"}
+                stroke={isActive||d.id===selectedId?"#f5a623":"none"}
                 strokeWidth={isActive||d.id===selectedId?2:0}/>
             );
           })}
@@ -324,7 +324,7 @@ function MultiPill({ options, values, onChange }: {
     <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
       {options.map(o=>{
         const active=values.includes(o.value)||(o.value==="tout"&&values.includes("tout"));
-        return<button key={o.value} onClick={()=>toggle(o.value)} style={{padding:"5px 12px",borderRadius:20,fontSize:12,border:active?"0.5px solid #FC4C02":"0.5px solid var(--border-2)",background:active?"rgba(252,76,2,0.12)":"transparent",color:active?"#FC4C02":"var(--text-dim)",cursor:"pointer",fontFamily:"var(--font-geist)",transition:"all .15s",whiteSpace:"nowrap"}}>{o.label}</button>;
+        return<button key={o.value} onClick={()=>toggle(o.value)} style={{padding:"5px 12px",borderRadius:20,fontSize:12,border:active?"0.5px solid rgba(245,166,35,0.5)":"0.5px solid var(--border-2)",background:active?"rgba(245,166,35,0.1)":"transparent",color:active?"#f5a623":"var(--text-dim)",cursor:"pointer",fontFamily:"var(--font-geist)",transition:"all .15s",whiteSpace:"nowrap"}}>{o.label}</button>;
       })}
     </div>
   );
@@ -339,24 +339,24 @@ function AssocModal({ activity, parcoursList, current, onSave, onRemove, onClose
   const [sel,setSel]=useState(current?.id??""); const [saving,setSaving]=useState(false);
   return(
     <div onClick={e=>e.target===e.currentTarget&&onClose()} style={{position:"fixed",inset:0,zIndex:100,background:"rgba(0,0,0,.75)",display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
-      <div style={{background:"#161616",border:"0.5px solid var(--border)",borderRadius:12,padding:28,width:"100%",maxWidth:460}}>
+      <div style={{background:"var(--surface)",border:"0.5px solid var(--border)",borderRadius:12,padding:28,width:"100%",maxWidth:460}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
           <div><p style={{...lbl,margin:"0 0 2px"}}>Association parcours</p><h2 style={{fontSize:15,fontWeight:500,color:"#fff",margin:0,fontFamily:"var(--font-geist)"}}>{activity.name}</h2></div>
           <button onClick={onClose} style={{background:"transparent",border:"none",color:"var(--text-dim)",fontSize:18,cursor:"pointer"}}>✕</button>
         </div>
         <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:18}}>
           {parcoursList.map(p=>(
-            <button key={p.id} onClick={()=>setSel(p.id)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 13px",borderRadius:7,cursor:"pointer",border:sel===p.id?"0.5px solid #FC4C02":"0.5px solid var(--border-2)",background:sel===p.id?"rgba(252,76,2,.08)":"var(--surface-2)",transition:"all .15s"}}>
-              <span style={{fontSize:13,color:sel===p.id?"#FC4C02":"var(--text-primary)",fontFamily:"var(--font-geist)"}}>{p.nom}</span>
+            <button key={p.id} onClick={()=>setSel(p.id)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 13px",borderRadius:7,cursor:"pointer",border:sel===p.id?"0.5px solid rgba(245,166,35,0.5)":"0.5px solid var(--border-2)",background:sel===p.id?"rgba(245,166,35,0.08)":"var(--surface-2)",transition:"all .15s"}}>
+              <span style={{fontSize:13,color:sel===p.id?"#f5a623":"var(--text-primary)",fontFamily:"var(--font-geist)"}}>{p.nom}</span>
               <div style={{display:"flex",gap:8}}>
-                {p.distance_km&&<span style={{fontSize:11,color:sel===p.id?"#FC4C02":"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>📍 {p.distance_km} km</span>}
-                {p.denivele_positif_m&&<span style={{fontSize:11,color:sel===p.id?"#FC4C02":"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>⛰ +{p.denivele_positif_m}m</span>}
+                {p.distance_km&&<span style={{fontSize:11,color:sel===p.id?"#f5a623":"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>📍 {p.distance_km} km</span>}
+                {p.denivele_positif_m&&<span style={{fontSize:11,color:sel===p.id?"#f5a623":"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>⛰ +{p.denivele_positif_m}m</span>}
               </div>
             </button>
           ))}
         </div>
         <div style={{display:"flex",gap:8}}>
-          <button onClick={async()=>{if(!sel)return;setSaving(true);await onSave(sel);setSaving(false);}} disabled={saving||!sel} style={{flex:1,background:sel?"#FC4C02":"#2a2a2a",color:sel?"#fff":"#555",border:"none",borderRadius:7,padding:"9px",fontSize:13,fontWeight:500,cursor:sel?"pointer":"not-allowed",fontFamily:"var(--font-geist)"}}>{saving?"...":"Associer"}</button>
+          <button onClick={async()=>{if(!sel)return;setSaving(true);await onSave(sel);setSaving(false);}} disabled={saving||!sel} style={{flex:1,background:sel?"#f5a623":"#2a2a2a",color:sel?"#fff":"#555",border:"none",borderRadius:7,padding:"9px",fontSize:13,fontWeight:500,cursor:sel?"pointer":"not-allowed",fontFamily:"var(--font-geist)"}}>{saving?"...":"Associer"}</button>
           {current&&<button onClick={async()=>{setSaving(true);await onRemove();setSaving(false);}} disabled={saving} style={{background:"transparent",color:"#664040",border:"0.5px solid #3a2a2a",borderRadius:7,padding:"9px 14px",fontSize:13,cursor:"pointer",fontFamily:"var(--font-geist)"}}>Retirer</button>}
           <button onClick={onClose} style={{background:"transparent",color:"var(--text-dim)",border:"0.5px solid var(--border-2)",borderRadius:7,padding:"9px 14px",fontSize:13,cursor:"pointer",fontFamily:"var(--font-geist)"}}>Annuler</button>
         </div>
@@ -383,7 +383,7 @@ function ActivityRow({ a, p, isLoggedIn, isHov, isSel, onHov, onClick, onAssoc, 
     <>
       <tr onMouseEnter={()=>onHov(a.id)} onMouseLeave={()=>onHov(null)} onClick={onClick}
         style={{borderBottom:"0.5px solid #1a1a1a",background:isAct?"var(--surface-2)":"transparent",cursor:"pointer",transition:"background .1s"}}>
-        <td style={{padding:"10px 12px",borderLeft:isAct?"2px solid #FC4C02":"2px solid transparent"}}>
+        <td style={{padding:"10px 12px",borderLeft:isAct?"2px solid #f5a623":"2px solid transparent"}}>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
             <span style={{fontSize:13}}>{run?"🏃":"🎒"}</span>
             <div>
@@ -393,15 +393,15 @@ function ActivityRow({ a, p, isLoggedIn, isHov, isSel, onHov, onClick, onAssoc, 
             {isGroupe&&<span style={{fontSize:11}}>👥</span>}
           </div>
         </td>
-        <td style={{padding:"10px 12px",fontSize:13,color:"var(--text-primary)",fontFamily:"var(--font-dm-mono)"}}>{fmt.dist(distM)}{p?.distance_km&&<span style={{fontSize:9,color:"#FC4C02",marginLeft:3}}>★</span>}</td>
+        <td style={{padding:"10px 12px",fontSize:13,color:"var(--text-primary)",fontFamily:"var(--font-dm-mono)"}}>{fmt.dist(distM)}{p?.distance_km&&<span style={{fontSize:9,color:"#f5a623",marginLeft:3}}>★</span>}</td>
         <td style={{padding:"10px 12px",fontSize:13,color:"var(--text-primary)",fontFamily:"var(--font-dm-mono)"}}>{fmt.time(timeField==="elapsed_time"?a.elapsed_time:a.moving_time)}</td>
         <td style={{padding:"10px 12px",fontSize:13,color:"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>{run?fmt.pace(speed):"—"}</td>
-        <td style={{padding:"10px 12px",fontSize:13,color:"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>{elev>0?`+${Math.round(elev)}m`:"—"}{p?.denivele_positif_m&&<span style={{fontSize:9,color:"#FC4C02",marginLeft:3}}>★</span>}</td>
+        <td style={{padding:"10px 12px",fontSize:13,color:"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>{elev>0?`+${Math.round(elev)}m`:"—"}{p?.denivele_positif_m&&<span style={{fontSize:9,color:"#f5a623",marginLeft:3}}>★</span>}</td>
         <td style={{padding:"10px 12px",fontSize:13,color:"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>{a.average_heartrate?`${Math.round(a.average_heartrate)} bpm`:"—"}</td>
         <td style={{padding:"10px 12px"}}>
           {p?(
             <div style={{display:"flex",alignItems:"center",gap:5}}>
-              <span style={{fontSize:11,background:"rgba(252,76,2,.1)",border:"0.5px solid rgba(252,76,2,.3)",borderRadius:5,padding:"2px 8px",color:"#FC4C02",fontFamily:"var(--font-geist)",whiteSpace:"nowrap"}}>{p.nom}</span>
+              <span style={{fontSize:11,background:"rgba(245,166,35,.1)",border:"0.5px solid rgba(245,166,35,.3)",borderRadius:5,padding:"2px 8px",color:"#f5a623",fontFamily:"var(--font-geist)",whiteSpace:"nowrap"}}>{p.nom}</span>
               {isLoggedIn&&<button onClick={e=>{e.stopPropagation();onAssoc();}} style={{background:"transparent",border:"none",color:"var(--text-dim)",cursor:"pointer",fontSize:11,padding:"2px 4px"}}>✎</button>}
             </div>
           ):isLoggedIn?(
@@ -426,7 +426,7 @@ function ActivityRow({ a, p, isLoggedIn, isHov, isSel, onHov, onClick, onAssoc, 
       </tr>
       {isSel&&(
         <tr style={{background:"var(--surface-2)",borderBottom:"0.5px solid #1a1a1a"}}>
-          <td colSpan={8} style={{padding:"10px 14px",borderLeft:"2px solid #FC4C02"}}>
+          <td colSpan={8} style={{padding:"10px 14px",borderLeft:"2px solid #f5a623"}}>
             {/* Compagnons dans le panel expandé */}
             <div style={{marginBottom:8}}>
               <p style={{fontSize:10,color:"var(--text-dim)",letterSpacing:".05em",textTransform:"uppercase",fontFamily:"var(--font-geist)",margin:"0 0 8px"}}>Compagnons</p>
@@ -489,7 +489,7 @@ function AnalyseAllure({ activities }: { activities: Activity[] }) {
     <div style={{...card,marginTop:12}}>
       <p style={{...lbl,margin:"0 0 12px"}}>Analyse allure km par km</p>
       <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:14}}>
-        {filtres.map(([nom,acts])=><button key={nom} onClick={()=>setSel(nom)} style={{padding:"5px 12px",borderRadius:20,fontSize:12,border:sel===nom?"0.5px solid #FC4C02":"0.5px solid var(--border-2)",background:sel===nom?"rgba(252,76,2,.12)":"transparent",color:sel===nom?"#FC4C02":"var(--text-dim)",cursor:"pointer",fontFamily:"var(--font-geist)"}}>{nom} <span style={{opacity:.6}}>({acts.length})</span></button>)}
+        {filtres.map(([nom,acts])=><button key={nom} onClick={()=>setSel(nom)} style={{padding:"5px 12px",borderRadius:20,fontSize:12,border:sel===nom?"0.5px solid rgba(245,166,35,0.5)":"0.5px solid var(--border-2)",background:sel===nom?"rgba(245,166,35,.1)":"transparent",color:sel===nom?"#f5a623":"var(--text-dim)",cursor:"pointer",fontFamily:"var(--font-geist)"}}>{nom} <span style={{opacity:.6}}>({acts.length})</span></button>)}
       </div>
       {loading?<div style={{textAlign:"center",padding:"20px 0",color:"var(--text-dim)",fontSize:13}}>Chargement des splits...</div>:(
         <div style={{overflowX:"auto"}}>
@@ -508,7 +508,7 @@ function AnalyseAllure({ activities }: { activities: Activity[] }) {
                     if(!lap)return<td key={i} style={{padding:"8px 10px",textAlign:"center"}}><span style={{fontSize:11,color:"#2a2a2a"}}>—</span></td>;
                     const pace=lap.average_speed>0?1000/lap.average_speed:9999;
                     const isBest=best[i]>0&&Math.abs(pace-best[i])<2;
-                    return<td key={i} style={{padding:"8px 10px",textAlign:"center"}}><span style={{fontSize:12,fontFamily:"var(--font-dm-mono)",color:isBest?"#FC4C02":"var(--text-muted)",fontWeight:isBest?500:400}}>{fmt.pace(lap.average_speed)}</span></td>;
+                    return<td key={i} style={{padding:"8px 10px",textAlign:"center"}}><span style={{fontSize:12,fontFamily:"var(--font-dm-mono)",color:isBest?"#f5a623":"var(--text-muted)",fontWeight:isBest?500:400}}>{fmt.pace(lap.average_speed)}</span></td>;
                   })}
                 </tr>;
               })}
@@ -550,6 +550,17 @@ function MesCoursesContent() {
   const [compagnonsPacelab, setCompagnonsPacelab] = useState<CompagnonPacelab[]>([]);
   // Map strava_activity_id -> liste de compagnons associés
   const [stravaCompagnons, setStravaCompagnons] = useState<Map<number, CompagnonPacelab[]>>(new Map());
+  const [badgeCount, setBadgeCount] = useState<number | null>(null);
+  const [featuredBadge, setFeaturedBadge] = useState<{name:string;emoji:string}|null>(null);
+
+  useEffect(() => {
+    try {
+      const cnt = localStorage.getItem("pacelab_badge_count");
+      if (cnt) setBadgeCount(parseInt(cnt));
+      const fb = localStorage.getItem("pacelab_featured_badge");
+      if (fb) setFeaturedBadge(JSON.parse(fb));
+    } catch {}
+  }, []);
 
   async function loadData() {
     const { createClient } = await import("@/lib/supabase");
@@ -720,6 +731,14 @@ function MesCoursesContent() {
         if (sc.compagnon) scMap.get(id)!.push(sc.compagnon);
       });
       setStravaCompagnons(scMap);
+    }
+
+    // Signal badge uniquement si de nouvelles activités ont été téléchargées
+    const oldCount = data?.activities?.length ?? 0;
+    const newCount = freshJson?.activities?.length ?? 0;
+    if (newCount > oldCount) {
+      localStorage.setItem("pacelab_badge_dot", "true");
+      window.dispatchEvent(new Event("pacelab-badge-update"));
     }
 
     setSyncing(false);
@@ -905,9 +924,21 @@ function MesCoursesContent() {
                   <p style={{ fontSize: 15, fontWeight: 500, color: "var(--text-primary)", margin: "0 0 2px", fontFamily: "var(--font-geist)" }}>{data.athlete.firstname} {data.athlete.lastname}</p>
                   {data.athlete.city && <p style={{ fontSize: 12, color: "var(--text-dim)", margin: 0, fontFamily: "var(--font-geist)" }}>📍 {data.athlete.city}, {data.athlete.country}</p>}
                 </div>
-                <div style={{ marginLeft: "auto", display: "flex", gap: 20 }}>
-                  <div style={{ textAlign: "center" }}><p style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)", margin: 0, fontFamily: "var(--font-dm-mono)" }}>{data.athlete.follower_count}</p><p style={{ fontSize: 10, color: "var(--text-dim)", margin: "2px 0 0", fontFamily: "var(--font-geist)" }}>abonnés</p></div>
-                  <div style={{ textAlign: "center" }}><p style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)", margin: 0, fontFamily: "var(--font-dm-mono)" }}>{data.athlete.friend_count}</p><p style={{ fontSize: 10, color: "var(--text-dim)", margin: "2px 0 0", fontFamily: "var(--font-geist)" }}>abonnements</p></div>
+                <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 20 }}>
+                  {badgeCount !== null && (
+                    <a href="/recompenses" style={{ textAlign: "center", textDecoration: "none" }}>
+                      <p style={{ fontSize: 20, fontWeight: 500, color: "var(--accent)", margin: 0, fontFamily: "var(--font-dm-mono)" }}>{badgeCount}</p>
+                      <p style={{ fontSize: 10, color: "var(--text-dim)", margin: "2px 0 0", fontFamily: "var(--font-geist)" }}>badges</p>
+                    </a>
+                  )}
+                  {featuredBadge && (
+                    <a href="/recompenses" style={{ textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(245,166,35,0.1)", border: "0.5px solid rgba(245,166,35,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
+                        {featuredBadge.emoji}
+                      </div>
+                      <p style={{ fontSize: 10, color: "var(--text-dim)", margin: 0, fontFamily: "var(--font-geist)", maxWidth: 70, textAlign: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{featuredBadge.name}</p>
+                    </a>
+                  )}
                 </div>
               </div>
             )}
@@ -916,7 +947,7 @@ function MesCoursesContent() {
             {(data?.stats || (data?.activities && data.activities.length > 0)) && (
               <div style={{ display: "grid", gridTemplateColumns: "2fr 2fr 1fr", gap: 10, marginBottom: 12, alignItems: "start" }}>
                 <div style={{ ...card, padding: "12px 16px" }}>
-                  <p style={{ ...lbl, color: "#FC4C02" }}>Cette année</p>
+                  <p style={{ ...lbl, color: "#f5a623" }}>Cette année</p>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
                     {[{ l: "Sorties", v: ytd?.count ?? 0 }, { l: "Distance", v: fmt.distShort(ytd?.distance ?? 0) }, { l: "Temps", v: (() => { const yr = String(new Date().getFullYear()); const ytdRuns = runs.filter(a => a.start_date_local.startsWith(yr)); return fmt.time(ytdRuns.reduce((s,a)=>s+(timeField==="elapsed_time"?a.elapsed_time:a.moving_time),0)); })() }, { l: "Dénivelé", v: `+${Math.round(ytd?.elevation_gain ?? 0)}m` }].map(({ l, v }) => (
                       <div key={l}><p style={{ ...lbl, margin: "0 0 3px" }}>{l}</p><p style={{ fontSize: 15, fontWeight: 500, color: "var(--text-primary)", margin: 0, fontFamily: "var(--font-dm-mono)" }}>{v}</p></div>
@@ -943,7 +974,7 @@ function MesCoursesContent() {
             {/* Bloc activités */}
             <div style={{ ...card, padding: 0, overflow: "hidden" }}>
               {/* Filtres */}
-              <div style={{ padding: "16px 18px", borderBottom: "0.5px solid var(--border)", background: "#111" }}>
+              <div style={{ padding: "16px 18px", borderBottom: "0.5px solid var(--border)", background: "var(--surface-2)" }}>
                 <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
                   <div><p style={{ ...lbl, margin: "0 0 8px" }}>Année</p><MultiPill options={anneeOptions} values={filterAnnee} onChange={v=>{setFilterAnnee(v);setSelectedId(null);setHoveredId(null);}}/></div>
                   {parcoursNoms.length > 0 && <div><p style={{ ...lbl, margin: "0 0 8px" }}>Parcours <span style={{ color: "#444", textTransform: "none", fontSize: 9 }}>multi-select</span></p><MultiPill options={parcoursOptions} values={filterParcours} onChange={v=>{setFilterParcours(v);setSelectedId(null);setHoveredId(null);}}/></div>}
@@ -952,7 +983,7 @@ function MesCoursesContent() {
                     <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
                       {/* Tous + Solo */}
                       {([["tout","Tous"],["solo","Solo"]] as const).map(([v,label])=>(
-                        <button key={v} onClick={()=>{setFilterGroupe(v);setSelectedId(null);setHoveredId(null);}} style={{padding:"5px 12px",borderRadius:20,fontSize:12,border:filterGroupe===v?"0.5px solid #FC4C02":"0.5px solid var(--border-2)",background:filterGroupe===v?"rgba(252,76,2,0.12)":"transparent",color:filterGroupe===v?"#FC4C02":"var(--text-dim)",cursor:"pointer",fontFamily:"var(--font-geist)",transition:"all .15s"}}>{label}</button>
+                        <button key={v} onClick={()=>{setFilterGroupe(v);setSelectedId(null);setHoveredId(null);}} style={{padding:"5px 12px",borderRadius:20,fontSize:12,border:filterGroupe===v?"0.5px solid rgba(245,166,35,0.5)":"0.5px solid var(--border-2)",background:filterGroupe===v?"rgba(245,166,35,0.1)":"transparent",color:filterGroupe===v?"#f5a623":"var(--text-dim)",cursor:"pointer",fontFamily:"var(--font-geist)",transition:"all .15s"}}>{label}</button>
                       ))}
                       {/* Filtre par compagnon (remplace "En groupe") */}
                       {compagnonsPacelab.filter(c => c.actif && runs.some(a => stravaCompagnons.get(a.id)?.some(sc => sc.id === c.id))).map(c => (
@@ -989,7 +1020,7 @@ function MesCoursesContent() {
                       const act = filtered.find(a => a.id === (hoveredId ?? selectedId));
                       const note = (act as (Activity & {private_note?:string}) | undefined)?.private_note || act?.description;
                       if (!note) return null;
-                      return <p style={{fontSize:12,color:"var(--text-dim)",fontFamily:"var(--font-geist)",fontStyle:"italic",margin:0,padding:"6px 10px",background:"var(--surface-2)",borderRadius:6,borderLeft:"2px solid #FC4C02"}}>{note}</p>;
+                      return <p style={{fontSize:12,color:"var(--text-dim)",fontFamily:"var(--font-geist)",fontStyle:"italic",margin:0,padding:"6px 10px",background:"var(--surface-2)",borderRadius:6,borderLeft:"2px solid #f5a623"}}>{note}</p>;
                     })()}
                   </div>
 
@@ -997,7 +1028,7 @@ function MesCoursesContent() {
               )}
 
               {/* Header tableau */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 18px", borderBottom: "0.5px solid var(--border)", background: "#0e0e0e" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 18px", borderBottom: "0.5px solid var(--border)", background: "var(--surface)" }}>
                 <p style={{ ...lbl, margin: 0 }}>{filtered.length} course{filtered.length!==1?"s":""} <span style={{color:"#444"}}>({runs.length} au total)</span></p>
                 <span style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "var(--font-geist)" }}>★ = données depuis le parcours associé</span>
               </div>

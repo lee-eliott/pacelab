@@ -361,6 +361,8 @@ function getBadges(s: ReturnType<typeof computeStats>) {
       icon: "ti-mountain",
       description: "D+ cumulé sur une même année calendaire",
       items: [
+        { name: "Premiers mètres", desc: "500m D+ en un an", emoji: "🌄", target: 500, val: s.maxElevAnnee },
+        { name: "Premier km vertical", desc: "1000m D+ en un an", emoji: "⛰", target: 1000, val: s.maxElevAnnee },
         { name: "Mont Fuji", desc: "3776m D+ en un an", emoji: "🗻", target: 3776, val: s.maxElevAnnee },
         { name: "Mont Blanc", desc: "4808m D+ en un an", emoji: "🏔️", target: 4808, val: s.maxElevAnnee },
         { name: "Kilimandjaro", desc: "5895m D+ en un an", emoji: "🌋", target: 5895, val: s.maxElevAnnee },
@@ -477,7 +479,6 @@ function getBadges(s: ReturnType<typeof computeStats>) {
         { name: "Fidélité", desc: "Courir le même jour deux années de suite", emoji: "🔄", target: 1, val: s.hasMemeJourDeuxAns ? 1 : 0 },
         { name: "Pleine lune", desc: "Courir un soir de pleine lune", emoji: "🌕", target: 1, val: s.hasPleineLune ? 1 : 0 },
         { name: "Journée olympique", desc: "Courir le 28 juillet", emoji: "🏅", target: 1, val: s.hasJourneeOlympique ? 1 : 0 },
-        { name: "Paris 2024", desc: "Courir le 26 juillet 2024", emoji: "🔥", target: 1, val: s.hasOuvertureJO2024 ? 1 : 0 },
       ],
     },
   ];
@@ -485,36 +486,35 @@ function getBadges(s: ReturnType<typeof computeStats>) {
 
 // ─── Composants ───────────────────────────────────────────────────────────────
 
-const lbl: React.CSSProperties = { fontSize:10,color:"var(--text-dim)",letterSpacing:".05em",textTransform:"uppercase",fontFamily:"var(--font-geist)",margin:"0 0 6px",display:"block" };
-const card: React.CSSProperties = { background:"var(--surface)",border:"0.5px solid var(--border)",borderRadius:10,padding:"18px 20px" };
+const lbl: React.CSSProperties = { fontSize:10,color:"var(--text-muted)",letterSpacing:".05em",textTransform:"uppercase",fontFamily:"var(--font-geist)",margin:"0 0 6px",display:"block" };
+const card: React.CSSProperties = { background:"var(--surface)",border:"0.5px solid var(--border)",borderRadius:12,padding:"18px 20px" };
 
 function BadgeCard({ name, desc, emoji, target, val }: { name:string; desc:string; emoji:string; target:number; val:number }) {
   const unlocked = val >= target;
-  const progress = Math.min(1, val / target);
-  const pct = Math.round(progress * 100);
+  const pct = Math.round(Math.min(1, val / target) * 100);
 
   return (
     <div style={{
-      background: unlocked ? "rgba(252,76,2,0.03)" : "var(--surface)",
-      border: unlocked ? "0.5px solid rgba(252,76,2,0.35)" : "0.5px solid var(--border)",
+      background: unlocked ? "rgba(245,166,35,0.04)" : "var(--surface)",
+      border: unlocked ? "0.5px solid rgba(245,166,35,0.35)" : "0.5px solid var(--border)",
       borderRadius: 10, padding: "14px 12px", textAlign: "center",
-      position: "relative", opacity: unlocked ? 1 : 0.5,
+      position: "relative", opacity: unlocked ? 1 : 0.55,
       transition: "all .15s",
     }}>
       {unlocked && (
-        <div style={{ position:"absolute", top:8, right:8, width:16, height:16, background:"#FC4C02", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <div style={{ position:"absolute", top:8, right:8, width:16, height:16, background:"#f5a623", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center" }}>
           <svg width="8" height="8" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </div>
       )}
-      <div style={{ width:44, height:44, borderRadius:"50%", background: unlocked ? "rgba(252,76,2,0.12)" : "#1a1a1a", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 10px", fontSize:20 }}>
+      <div style={{ width:44, height:44, borderRadius:"50%", background: unlocked ? "rgba(245,166,35,0.12)" : "var(--surface-2)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 10px", fontSize:20 }}>
         {unlocked ? emoji : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>}
       </div>
       <p style={{ fontSize:12, fontWeight:500, color:"var(--text-primary)", margin:"0 0 3px", fontFamily:"var(--font-geist)" }}>{name}</p>
       <p style={{ fontSize:11, color:"var(--text-dim)", margin:"0 0 8px", fontFamily:"var(--font-geist)", lineHeight:1.4 }}>{desc}</p>
       {!unlocked && (
         <>
-          <div style={{ height:3, background:"#1a1a1a", borderRadius:2, overflow:"hidden" }}>
-            <div style={{ height:3, background:"#FC4C02", borderRadius:2, width:`${pct}%`, transition:"width .4s" }} />
+          <div style={{ height:3, background:"var(--surface-3)", borderRadius:2, overflow:"hidden" }}>
+            <div style={{ height:3, background:"#f5a623", borderRadius:2, width:`${pct}%`, transition:"width .4s" }} />
           </div>
           <p style={{ fontSize:10, color:"var(--text-dim)", margin:"4px 0 0", fontFamily:"var(--font-dm-mono)" }}>
             {val % 1 === 0 ? Math.floor(val) : val.toFixed(1)} / {target}
@@ -527,6 +527,8 @@ function BadgeCard({ name, desc, emoji, target, val }: { name:string; desc:strin
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+interface BadgeInfo { id: string; name: string; emoji: string; }
+
 export default function RecompensesPage() {
   const pathname = usePathname();
   const isDemo = pathname?.startsWith("/demo") ?? false;
@@ -534,6 +536,9 @@ export default function RecompensesPage() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<ReturnType<typeof computeStats> | null>(null);
   const [timeField, setTimeField] = useState<"moving_time"|"elapsed_time">("moving_time");
+  const [newBadges, setNewBadges] = useState<BadgeInfo[]>([]);
+  const [showToast, setShowToast] = useState(false);
+  const [nextBadgeId, setNextBadgeId] = useState<string | null>(null);
 
   useEffect(() => {
     async function init() {
@@ -548,13 +553,14 @@ export default function RecompensesPage() {
       const json = await res.json();
       const runs = (json.activities ?? []).filter(isRun);
 
+      let computedStats: ReturnType<typeof computeStats>;
+
       if (isDemo) {
-        setIsLoggedIn(true); // Simule un user connecté
-        const parcoursBDD = json.parcours || [];
+        setIsLoggedIn(true);
         const assocData = json.associations || [];
         const assocMap = new Map<number, Parcours | null>();
         (assocData as Association[]).forEach(a => { assocMap.set(Number(a.strava_activity_id), a.parcours); });
-        setStats(computeStats(runs, assocMap, "moving_time"));
+        computedStats = computeStats(runs, assocMap, "moving_time");
       } else if (user) {
         const [{ data: parc }, assocRes, prefsRes] = await Promise.all([
           supabase.from("parcours").select("id,nom,distance_km,denivele_positif_m").eq("actif",true).eq("user_id",user.id),
@@ -574,11 +580,82 @@ export default function RecompensesPage() {
             if (match) assocMap.set(act.id, match);
           }
         });
-
-        setStats(computeStats(runs, assocMap, tf));
+        computedStats = computeStats(runs, assocMap, tf);
       } else {
-        setStats(computeStats(runs, new Map(), "moving_time"));
+        computedStats = computeStats(runs, new Map(), "moving_time");
       }
+
+      setStats(computedStats);
+
+      // Badge notification logic
+      const allBadges = getBadges(computedStats);
+      const allItems = allBadges.flatMap(cat => cat.items.map(b => ({
+        id: `${cat.category}__${b.name}`,
+        name: b.name,
+        emoji: b.emoji,
+        val: b.val,
+        target: b.target,
+      })));
+
+      const unlockedIds = allItems.filter(b => b.val >= b.target).map(b => b.id);
+
+      // Find next badge (highest progress ratio, not yet unlocked)
+      const notUnlocked = allItems.filter(b => b.val < b.target);
+      if (notUnlocked.length > 0) {
+        const next = notUnlocked.sort((a, b) => (b.val / b.target) - (a.val / a.target))[0];
+        setNextBadgeId(next.id);
+      }
+
+      // Compare with seen badges & persist
+      if (!isDemo) {
+        try {
+          // Lecture : localStorage d'abord (toujours fiable), puis merge avec Supabase
+          let seen: string[] = [];
+          try {
+            const raw = localStorage.getItem("pacelab_seen_badges");
+            seen = raw ? JSON.parse(raw) : [];
+          } catch {}
+
+          if (user) {
+            const { data: badgeState, error: readErr } = await supabase
+              .from("user_badge_state")
+              .select("seen_ids")
+              .eq("user_id", user.id)
+              .maybeSingle();
+            if (!readErr && badgeState?.seen_ids?.length) {
+              // Union des deux sources — protège contre désync localStorage/Supabase
+              seen = [...new Set([...seen, ...badgeState.seen_ids])];
+            }
+          }
+
+          const freshBadges = unlockedIds.filter(id => !seen.includes(id));
+          if (freshBadges.length > 0) {
+            const freshInfo = freshBadges.map(id => allItems.find(b => b.id === id)!).filter(Boolean);
+            setNewBadges(freshInfo);
+            setShowToast(true);
+          }
+
+          // Écriture localStorage (toujours)
+          localStorage.setItem("pacelab_seen_badges", JSON.stringify(unlockedIds));
+
+          // Écriture Supabase si connecté
+          if (user) {
+            const { error: writeErr } = await supabase
+              .from("user_badge_state")
+              .upsert(
+                { user_id: user.id, seen_ids: unlockedIds, updated_at: new Date().toISOString() },
+                { onConflict: "user_id" }
+              );
+            if (writeErr) console.warn("[badges] upsert error:", writeErr.message);
+          }
+          localStorage.setItem("pacelab_badge_count", String(unlockedIds.length));
+          const unlockedFull = allItems.filter(b => b.val >= b.target).map(({id, name, emoji}) => ({id, name, emoji}));
+          localStorage.setItem("pacelab_unlocked_badges_full", JSON.stringify(unlockedFull));
+        } catch {}
+        localStorage.removeItem("pacelab_badge_dot");
+        window.dispatchEvent(new Event("pacelab-badge-update"));
+      }
+
       setLoading(false);
     }
     init();
@@ -591,6 +668,55 @@ export default function RecompensesPage() {
   return (
     <div style={{ minHeight:"100vh" }}>
       <Navbar isLoggedIn={isLoggedIn} isDemo={isDemo} />
+
+      {/* Modal nouveaux badges */}
+      {showToast && newBadges.length > 0 && (
+        <div
+          onClick={e => e.target === e.currentTarget && setShowToast(false)}
+          style={{
+            position:"fixed", inset:0, zIndex:9999,
+            background:"rgba(0,0,0,0.7)",
+            display:"flex", alignItems:"center", justifyContent:"center",
+            padding:24,
+          }}
+        >
+          <div style={{
+            background:"var(--surface)", border:"0.5px solid rgba(245,166,35,0.4)",
+            borderRadius:16, padding:"28px 32px", maxWidth:420, width:"100%",
+            boxShadow:"0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(245,166,35,0.08)",
+          }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:20 }}>
+              <div>
+                <p style={{ fontSize:10, color:"var(--accent)", fontFamily:"var(--font-geist)", letterSpacing:"0.06em", textTransform:"uppercase", fontWeight:600, margin:"0 0 4px" }}>
+                  {newBadges.length === 1 ? "Nouveau badge débloqué !" : `${newBadges.length} nouveaux badges débloqués !`}
+                </p>
+                <p style={{ fontSize:13, color:"var(--text-dim)", fontFamily:"var(--font-geist)", margin:0 }}>
+                  Continue comme ça 🎯
+                </p>
+              </div>
+              <button
+                onClick={() => setShowToast(false)}
+                style={{ background:"var(--surface-2)", border:"0.5px solid var(--border)", borderRadius:8, cursor:"pointer", color:"var(--text-muted)", fontSize:18, lineHeight:1, padding:"6px 10px" }}
+              >×</button>
+            </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:24 }}>
+              {newBadges.map(b => (
+                <div key={b.id} style={{ display:"flex", alignItems:"center", gap:14, background:"rgba(245,166,35,0.05)", border:"0.5px solid rgba(245,166,35,0.2)", borderRadius:10, padding:"12px 14px" }}>
+                  <span style={{ fontSize:26, flexShrink:0 }}>{b.emoji}</span>
+                  <span style={{ fontSize:14, fontWeight:500, color:"var(--text-primary)", fontFamily:"var(--font-geist)" }}>{b.name}</span>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowToast(false)}
+              style={{ width:"100%", background:"var(--accent)", color:"#111", border:"none", borderRadius:8, padding:"10px", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"var(--font-geist)" }}
+            >
+              Super, merci !
+            </button>
+          </div>
+        </div>
+      )}
+
       <main style={{ padding:"24px", maxWidth:1100, margin:"0 auto" }}>
         <div style={{ marginBottom:24 }}>
           <p style={{ fontSize:11, color:"var(--text-dim)", letterSpacing:"0.04em", textTransform:"uppercase", margin:"0 0 4px" }}>Progression</p>
@@ -602,14 +728,55 @@ export default function RecompensesPage() {
         ) : !stats ? (
           <div style={{ textAlign:"center", padding:"60px 0" }}>
             <p style={{ fontSize:13, color:"var(--text-dim)", fontFamily:"var(--font-geist)", margin:"0 0 16px" }}>Synchronise tes données Strava pour voir tes badges.</p>
-            <a href="/mescourses" style={{ fontSize:13, color:"#FC4C02", fontFamily:"var(--font-geist)", textDecoration:"none" }}>Aller à Mes Courses →</a>
+            <a href="/mescourses" style={{ fontSize:13, color:"#f5a623", fontFamily:"var(--font-geist)", textDecoration:"none" }}>Aller à Mes Courses →</a>
           </div>
         ) : (
           <>
+            {/* Prochain badge à débloquer */}
+            {nextBadgeId && (() => {
+              const allBadges = getBadges(stats!);
+              const allItems = allBadges.flatMap(cat => cat.items.map(b => ({ ...b, id: `${cat.category}__${b.name}`, category: cat.category })));
+              const next = allItems.find(b => b.id === nextBadgeId);
+              if (!next) return null;
+              const pct = Math.round(Math.min(1, next.val / next.target) * 100);
+              return (
+                <div
+                  onClick={() => document.getElementById(`cat-${next.category}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                  style={{
+                    background: "var(--surface)", border: "0.5px solid rgba(245,166,35,0.3)",
+                    borderRadius: 12, padding: "16px 20px", marginBottom: 24, cursor: "pointer",
+                    display: "flex", alignItems: "center", gap: 16, transition: "border-color .15s",
+                    boxShadow: "0 0 0 1px rgba(245,166,35,0.06)",
+                  }}
+                >
+                  <div style={{ width:48, height:48, borderRadius:"50%", background:"rgba(245,166,35,0.08)", border:"0.5px solid rgba(245,166,35,0.25)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                      <span style={{ fontSize:10, color:"var(--accent)", fontFamily:"var(--font-geist)", letterSpacing:"0.05em", textTransform:"uppercase", fontWeight:600 }}>Prochain badge</span>
+                      <span style={{ fontSize:10, color:"var(--text-dim)", fontFamily:"var(--font-geist)" }}>{next.category}</span>
+                    </div>
+                    <p style={{ fontSize:14, fontWeight:500, color:"var(--text-primary)", margin:"0 0 2px", fontFamily:"var(--font-geist)" }}>{next.name}</p>
+                    <p style={{ fontSize:12, color:"var(--text-dim)", margin:"0 0 8px", fontFamily:"var(--font-geist)" }}>{next.desc}</p>
+                    <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                      <div style={{ flex:1, height:4, background:"var(--surface-3)", borderRadius:2, overflow:"hidden" }}>
+                        <div style={{ height:4, background:"var(--accent)", borderRadius:2, width:`${pct}%`, transition:"width .4s" }} />
+                      </div>
+                      <span style={{ fontSize:11, color:"var(--accent)", fontFamily:"var(--font-dm-mono)", flexShrink:0 }}>
+                        {next.val % 1 === 0 ? Math.floor(next.val) : next.val.toFixed(1)} / {next.target} · {pct}%
+                      </span>
+                    </div>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="1.8" strokeLinecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                </div>
+              );
+            })()}
+
             {/* Stats globales */}
             <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:10, marginBottom:24 }}>
               {[
-                { l:"Badges débloqués", v:`${totalUnlocked} / ${totalBadges}`, color:"#FC4C02" },
+                { l:"Badges débloqués", v:`${totalUnlocked} / ${totalBadges}`, color:"#f5a623" },
                 { l:"Sorties totales", v:stats.totalSorties },
                 { l:"Km totaux", v:`${Math.round(stats.totalKm)} km` },
                 { l:"D+ total", v:`${Math.round(stats.totalDenivele)}m` },
@@ -626,9 +793,9 @@ export default function RecompensesPage() {
             {badges.map(cat => {
               const unlockedCount = cat.items.filter(b => b.val >= b.target).length;
               return (
-                <div key={cat.category} style={{ marginBottom:28 }}>
+                <div key={cat.category} id={`cat-${cat.category}`} style={{ marginBottom:28 }}>
                   <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
-                    <i className={`ti ${cat.icon}`} style={{ fontSize:18, color:"#FC4C02" }} aria-hidden="true" />
+                    <i className={`ti ${cat.icon}`} style={{ fontSize:18, color:"#f5a623" }} aria-hidden="true" />
                     <div>
                       <p style={{ fontSize:14, fontWeight:500, color:"var(--text-primary)", margin:0, fontFamily:"var(--font-geist)" }}>
                         {cat.category}

@@ -162,9 +162,9 @@ export default function StreakCalendar({ courses }: Props) {
           const isActive = s.hasCourse && !s.isFuture;
           const shouldPulse = s.isCurrentWeek && !isActive && !s.isFuture;
 
-          let bg = "#1a1a1a";
-          let border = "0.5px solid #222";
-          let textColor = "#333";
+          let bg = "var(--surface-2)";
+          let border = "0.5px solid var(--border)";
+          let textColor = "var(--text-dim)";
 
           if (isActive) {
             bg = "var(--coral)";
@@ -184,10 +184,10 @@ export default function StreakCalendar({ courses }: Props) {
               {/* Marqueur de nouvelle année — affiché AVANT la case S1 */}
               {s.isNewYear && (
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 3, width: "100%" }}>
-                  <span style={{ fontSize: 8, color: "#666", fontFamily: "var(--font-dm-mono)", whiteSpace: "nowrap", letterSpacing: 0 }}>
+                  <span style={{ fontSize: 8, color: "var(--text-dim)", fontFamily: "var(--font-dm-mono)", whiteSpace: "nowrap", letterSpacing: 0 }}>
                     {s.year}
                   </span>
-                  <div style={{ width: "100%", height: 1, background: "linear-gradient(to bottom, #444, transparent)", marginTop: 1 }} />
+                  <div style={{ width: "100%", height: 1, background: "linear-gradient(to bottom, var(--border), transparent)", marginTop: 1 }} />
                 </div>
               )}
               {/* Espace réservé pour aligner les cases sans marqueur */}
@@ -235,7 +235,7 @@ export default function StreakCalendar({ courses }: Props) {
           <span style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "var(--font-geist)" }}>Semaine en cours</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <div style={{ width: 12, height: 12, borderRadius: 3, background: "#1a1a1a", border: "0.5px solid #222" }} />
+          <div style={{ width: 12, height: 12, borderRadius: 3, background: "var(--surface-2)", border: "0.5px solid var(--border)" }} />
           <span style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "var(--font-geist)" }}>Sans course</span>
         </div>
       </div>

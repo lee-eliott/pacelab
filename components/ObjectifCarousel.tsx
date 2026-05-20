@@ -198,7 +198,7 @@ export default function ObjectifCarousel({ objectifs, courses, periode }: Props)
 
   const obj = objectifsFiltres[currentSafe];
   const prog = calcProgression(obj, courses);
-  const color = prog.atteint ? "var(--green)" : prog.echoue ? "#555" : "var(--coral)";
+  const color = prog.atteint ? "var(--green)" : prog.echoue ? "#555" : "var(--accent)";
 
   const isEnAvance = prog.diffLissee !== null && prog.diffLissee >= 0;
   const isEnRetard = prog.diffLissee !== null && prog.diffLissee < 0;
@@ -316,7 +316,7 @@ export default function ObjectifCarousel({ objectifs, courses, periode }: Props)
                 width: i === currentSafe ? 16 : 6,
                 height: 6,
                 borderRadius: 3,
-                background: i === currentSafe ? "var(--coral)" : "#333",
+                background: i === currentSafe ? "var(--accent)" : "var(--border-2)",
                 border: "none",
                 cursor: "pointer",
                 padding: 0,

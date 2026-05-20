@@ -45,7 +45,7 @@ const labelStyle: React.CSSProperties = {
 };
 
 const btnPrimary: React.CSSProperties = {
-  background: "var(--coral)",
+  background: "var(--accent)",
   color: "#fff",
   border: "none",
   borderRadius: 8,
@@ -136,23 +136,23 @@ function ParcoursCard({
       style={{
         display: "flex", flexDirection: "column", alignItems: "flex-start",
         gap: 4, padding: "12px 14px", borderRadius: 8,
-        border: selected ? "0.5px solid var(--coral)" : "0.5px solid var(--border-2)",
-        background: selected ? "var(--coral-dim)" : "var(--surface-2)",
+        border: selected ? "0.5px solid rgba(245,166,35,0.5)" : "0.5px solid var(--border-2)",
+        background: selected ? "var(--accent-dim)" : "var(--surface-2)",
         cursor: "pointer", transition: "all 0.15s",
         textAlign: "left", fontFamily: "var(--font-geist)", minWidth: 120,
       }}
     >
-      <span style={{ fontSize: 13, fontWeight: 500, color: selected ? "var(--coral)" : "var(--text-primary)" }}>
+      <span style={{ fontSize: 13, fontWeight: 500, color: selected ? "var(--accent)" : "var(--text-primary)" }}>
         {parcours.nom}
       </span>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
         {parcours.distance_km && (
-          <span style={{ fontSize: 10, color: selected ? "var(--coral)" : "var(--text-dim)" }}>
+          <span style={{ fontSize: 10, color: selected ? "var(--accent)" : "var(--text-dim)" }}>
             {parcours.distance_km} km
           </span>
         )}
         {allure && (
-          <span style={{ fontSize: 10, color: selected ? "var(--coral)" : "var(--text-dim)", fontFamily: "var(--font-dm-mono)" }}>
+          <span style={{ fontSize: 10, color: selected ? "var(--accent)" : "var(--text-dim)", fontFamily: "var(--font-dm-mono)" }}>
             → {allure}
           </span>
         )}
@@ -385,7 +385,7 @@ export default function SaisirPage() {
                 {allurePreview && (
                   <>
                     <span style={{ fontSize: 11, color: "var(--text-dim)" }}>·</span>
-                    <span style={{ fontSize: 13, color: "var(--coral)", fontFamily: "var(--font-dm-mono)" }}>{allurePreview}</span>
+                    <span style={{ fontSize: 13, color: "var(--accent)", fontFamily: "var(--font-dm-mono)" }}>{allurePreview}</span>
                   </>
                 )}
               </div>

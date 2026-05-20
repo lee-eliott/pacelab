@@ -118,7 +118,7 @@ export default function EvolutionChart({
   // Couleur du tooltip selon les compagnons du point actif
   const activePointColor = activePoint && activePoint.compagnons.length > 0
     ? getDotColor({ compagnons: activePoint.compagnons } as CourseEnrichie, colorMap, )
-    : "var(--coral)";
+    : "var(--accent)";
 
   return (
     <div style={{ height: 160, marginBottom: 20, position: "relative" }}>
@@ -126,7 +126,7 @@ export default function EvolutionChart({
       {activePoint && (
         <div style={{
           position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
-          background: "#1e1e1e", border: "0.5px solid #2a2a2a", borderRadius: 6,
+          background: "var(--surface-2)", border: "0.5px solid var(--border-2)", borderRadius: 6,
           padding: "5px 10px", pointerEvents: "none", zIndex: 10,
           display: "flex", gap: 8, alignItems: "baseline",
         }}>
@@ -180,7 +180,7 @@ export default function EvolutionChart({
           <Line
             type="monotone"
             dataKey="duree"
-            stroke="#D85A30"
+            stroke="#f5a623"
             strokeWidth={1.5}
             dot={(props) => {
               const { cx, cy, payload } = props;
@@ -202,7 +202,7 @@ export default function EvolutionChart({
                   cy={cy}
                   r={isActive ? 6 : isPR ? 5 : hasCompagnon ? 4 : 3}
                   fill={isActive ? "#fff" : dotColor}
-                  stroke={isActive || isSelected ? "#D85A30" : isPR ? "#0e0e0e" : "none"}
+                  stroke={isActive || isSelected ? "#f5a623" : isPR ? "#0e0e0e" : "none"}
                   strokeWidth={isActive || isSelected ? 2 : isPR ? 2 : 0}
                 />
               );

@@ -73,7 +73,7 @@ const labelStyle: React.CSSProperties = {
   display: "block", marginBottom: 6, fontFamily: "var(--font-geist)",
 };
 const btnPrimary: React.CSSProperties = {
-  background: "var(--coral)", color: "#fff", border: "none", borderRadius: 6,
+  background: "var(--accent)", color: "#fff", border: "none", borderRadius: 6,
   padding: "8px 16px", fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: "var(--font-geist)",
 };
 const btnSecondary: React.CSSProperties = {
@@ -134,8 +134,8 @@ function calcProgression(obj: Objectif, courses: CoursesSummary[]) {
 
 function FormCard({ title, children, error }: { title: string; children: React.ReactNode; error?: string }) {
   return (
-    <div style={{ background: "var(--surface)", border: "0.5px solid var(--coral)", borderRadius: 10, padding: "20px", marginBottom: 16 }}>
-      <p style={{ fontSize: 13, fontWeight: 500, color: "var(--coral)", margin: "0 0 16px", fontFamily: "var(--font-geist)" }}>{title}</p>
+    <div style={{ background: "var(--surface)", border: "0.5px solid rgba(245,166,35,0.4)", borderRadius: 10, padding: "20px", marginBottom: 16 }}>
+      <p style={{ fontSize: 13, fontWeight: 500, color: "var(--accent)", margin: "0 0 16px", fontFamily: "var(--font-geist)" }}>{title}</p>
       {children}
       {error && <p style={{ fontSize: 12, color: "var(--coral)", margin: "12px 0 0", fontFamily: "var(--font-geist)" }}>{error}</p>}
     </div>
@@ -167,7 +167,7 @@ function ObjectifFormContent({ form, setForm }: { form: ObjectifForm; setForm: (
         <label style={labelStyle}>Mode</label>
         <div style={{ display: "flex", gap: 4, background: "var(--surface-2)", border: "0.5px solid var(--border-2)", borderRadius: 6, padding: 3, width: "fit-content" }}>
           {(["periode", "libre"] as const).map((m) => (
-            <button key={m} onClick={() => setForm({ ...form, mode: m })} style={{ padding: "4px 12px", borderRadius: 4, fontSize: 12, border: "none", cursor: "pointer", fontFamily: "var(--font-geist)", background: form.mode === m ? "var(--coral)" : "transparent", color: form.mode === m ? "#fff" : "var(--text-dim)" }}>
+            <button key={m} onClick={() => setForm({ ...form, mode: m })} style={{ padding: "4px 12px", borderRadius: 4, fontSize: 12, border: "none", cursor: "pointer", fontFamily: "var(--font-geist)", background: form.mode === m ? "var(--accent)" : "transparent", color: form.mode === m ? "#fff" : "var(--text-dim)" }}>
               {m === "periode" ? "Période fixe" : "Date libre"}
             </button>
           ))}
@@ -223,7 +223,7 @@ function ObjectifCard({
   onDelete: () => void;
 }) {
   const { prog } = o;
-  const color = prog.atteint ? "var(--green)" : prog.echoue ? "#555" : "var(--coral)";
+  const color = prog.atteint ? "var(--green)" : prog.echoue ? "#555" : "var(--accent)";
   return (
     <div style={{ background: "var(--surface)", border: `0.5px solid ${prog.atteint ? "#1a4a30" : prog.echoue ? "#2a2a2a" : "var(--border)"}`, borderRadius: 10, padding: "16px 20px" }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
@@ -300,6 +300,8 @@ export default function ParametresPage() {
 
   const [timeField, setTimeFieldState] = useState<"moving_time" | "elapsed_time">("moving_time");
   const [prefSaving, setPrefSaving] = useState(false);
+  const [featuredBadge, setFeaturedBadgeState] = useState<{id:string;name:string;emoji:string}|null>(null);
+  const [unlockedBadges, setUnlockedBadges] = useState<{id:string;name:string;emoji:string}[]>([]);
 
   const supabase = createClient();
   const ELIOTT_USER_ID = "8e45b7b9-f98e-4210-8f06-c9dc4de57521";
@@ -315,6 +317,24 @@ export default function ParametresPage() {
         const { data: prefs } = await supabase.from("user_preferences").select("time_field").eq("user_id", user.id).single();
         if (prefs?.time_field) setTimeFieldState(prefs.time_field as "moving_time" | "elapsed_time");
       }
+      // Badge mis en avant — unlocked depuis localStorage, featured_id depuis Supabase
+      try {
+        const ubRaw = localStorage.getItem("pacelab_unlocked_badges_full");
+        const unlocked: {id:string;name:string;emoji:string}[] = ubRaw ? JSON.parse(ubRaw) : [];
+        if (unlocked.length) setUnlockedBadges(unlocked);
+
+        if (user) {
+          const { data: badgeState } = await supabase
+            .from("user_badge_state")
+            .select("featured_id")
+            .eq("user_id", user.id)
+            .single();
+          if (badgeState?.featured_id) {
+            const found = unlocked.find(b => b.id === badgeState.featured_id);
+            if (found) setFeaturedBadgeState(found);
+          }
+        }
+      } catch {}
     }
     init();
   }, []);
@@ -418,6 +438,22 @@ export default function ParametresPage() {
     await loadObjectifs();
   }
 
+  async function selectFeaturedBadge(badge: {id:string;name:string;emoji:string} | null) {
+    setFeaturedBadgeState(badge);
+    // Supabase — upsert partiel (featured_id uniquement, seen_ids non touché)
+    if (userId) {
+      await supabase
+        .from("user_badge_state")
+        .upsert(
+          { user_id: userId, featured_id: badge?.id ?? null, updated_at: new Date().toISOString() },
+          { onConflict: "user_id" }
+        );
+    }
+    // Cache localStorage pour affichage dans mescourses (évite un fetch Supabase)
+    if (badge) localStorage.setItem("pacelab_featured_badge", JSON.stringify(badge));
+    else localStorage.removeItem("pacelab_featured_badge");
+  }
+
   async function saveTimeField(field: "moving_time" | "elapsed_time") {
     if (!userId) return;
     setPrefSaving(true);
@@ -439,7 +475,7 @@ export default function ParametresPage() {
 
         {!isLoggedIn && (
           <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 10, padding: "10px 16px", marginBottom: 20, display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--coral)", flexShrink: 0 }} />
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--accent)", flexShrink: 0 }} />
             <span style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "var(--font-geist)" }}>
               Vous consultez les paramètres publics d'<strong style={{ color: "var(--text-primary)" }}>Eliott LEE</strong> — Lecture seule
             </span>
@@ -453,7 +489,7 @@ export default function ParametresPage() {
 
         <div style={{ display: "flex", gap: 4, background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 8, padding: 4, marginBottom: 20, width: "fit-content" }}>
           {tabs.map(([key, label]) => (
-            <button key={key} onClick={() => setTab(key)} style={{ padding: "6px 16px", borderRadius: 6, fontSize: 13, border: "none", cursor: "pointer", fontFamily: "var(--font-geist)", background: tab === key ? "var(--coral)" : "transparent", color: tab === key ? "#fff" : "var(--text-dim)", transition: "all 0.15s" }}>
+            <button key={key} onClick={() => setTab(key)} style={{ padding: "6px 16px", borderRadius: 6, fontSize: 13, border: "none", cursor: "pointer", fontFamily: "var(--font-geist)", background: tab === key ? "var(--accent)" : "transparent", color: tab === key ? "#fff" : "var(--text-dim)", transition: "all 0.15s" }}>
               {label}
             </button>
           ))}
@@ -501,8 +537,8 @@ export default function ParametresPage() {
                           </div>
                       </div>
                     ) : (
-                      <div style={{ background: "var(--surface)", border: "0.5px solid var(--coral)", borderRadius: 10, padding: "20px" }}>
-                        <p style={{ fontSize: 13, fontWeight: 500, color: "var(--coral)", margin: "0 0 16px", fontFamily: "var(--font-geist)" }}>Modifier — {p.nom}</p>
+                      <div style={{ background: "var(--surface)", border: "0.5px solid rgba(245,166,35,0.4)", borderRadius: 10, padding: "20px" }}>
+                        <p style={{ fontSize: 13, fontWeight: 500, color: "var(--accent)", margin: "0 0 16px", fontFamily: "var(--font-geist)" }}>Modifier — {p.nom}</p>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
                           <div style={{ gridColumn: "1 / -1" }}><label style={labelStyle}>Nom *</label><input style={inputStyle} value={parcoursForm.nom} onChange={(e) => setParcoursForm({ ...parcoursForm, nom: e.target.value })} /></div>
                           <div><label style={labelStyle}>Distance (km)</label><input style={inputStyle} type="number" step="0.01" value={parcoursForm.distance_km} onChange={(e) => setParcoursForm({ ...parcoursForm, distance_km: e.target.value })} /></div>
@@ -561,8 +597,8 @@ export default function ParametresPage() {
                           </div>
                       </div>
                     ) : (
-                      <div style={{ background: "var(--surface)", border: "0.5px solid var(--coral)", borderRadius: 10, padding: "20px" }}>
-                        <p style={{ fontSize: 13, fontWeight: 500, color: "var(--coral)", margin: "0 0 16px", fontFamily: "var(--font-geist)" }}>Modifier — {c.nom}</p>
+                      <div style={{ background: "var(--surface)", border: "0.5px solid rgba(245,166,35,0.4)", borderRadius: 10, padding: "20px" }}>
+                        <p style={{ fontSize: 13, fontWeight: 500, color: "var(--accent)", margin: "0 0 16px", fontFamily: "var(--font-geist)" }}>Modifier — {c.nom}</p>
                         <div style={{ marginBottom: 12 }}>
                           <label style={labelStyle}>Prénom *</label>
                           <input style={inputStyle} value={compagnonNom} onChange={(e) => setCompagnonNom(e.target.value)} onKeyDown={(e) => e.key === "Enter" && saveCompagnon()} autoFocus />
@@ -669,20 +705,63 @@ export default function ParametresPage() {
                     disabled={!isLoggedIn || prefSaving}
                     style={{
                       flex: 1, padding: "14px 16px", borderRadius: 8, textAlign: "left", cursor: isLoggedIn ? "pointer" : "not-allowed",
-                      border: timeField === opt.value ? "0.5px solid var(--coral)" : "0.5px solid var(--border-2)",
-                      background: timeField === opt.value ? "var(--coral-dim)" : "var(--surface-2)",
+                      border: timeField === opt.value ? "0.5px solid rgba(245,166,35,0.4)" : "0.5px solid var(--border-2)",
+                      background: timeField === opt.value ? "var(--accent-dim)" : "var(--surface-2)",
                       transition: "all 0.15s",
                     }}
                   >
-                    <p style={{ fontSize: 13, fontWeight: 500, color: timeField === opt.value ? "var(--coral)" : "var(--text-primary)", margin: "0 0 4px", fontFamily: "var(--font-geist)" }}>
+                    <p style={{ fontSize: 13, fontWeight: 500, color: timeField === opt.value ? "var(--accent)" : "var(--text-primary)", margin: "0 0 4px", fontFamily: "var(--font-geist)" }}>
                       {opt.label}
-                      {timeField === opt.value && <span style={{ marginLeft: 8, fontSize: 10, color: "var(--coral)" }}>✓ Actif</span>}
+                      {timeField === opt.value && <span style={{ marginLeft: 8, fontSize: 10, color: "var(--accent)" }}>✓ Actif</span>}
                     </p>
                     <p style={{ fontSize: 11, color: "var(--text-dim)", margin: 0, fontFamily: "var(--font-geist)" }}>{opt.desc}</p>
                   </button>
                 ))}
               </div>
               {!isLoggedIn && <p style={{ fontSize: 11, color: "var(--text-dim)", margin: "12px 0 0", fontFamily: "var(--font-geist)" }}>Connexion requise pour modifier les préférences.</p>}
+            </div>
+
+            {/* Badge mis en avant */}
+            <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 10, padding: "20px 24px", marginTop: 16 }}>
+              <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", margin: "0 0 6px", fontFamily: "var(--font-geist)" }}>Badge mis en avant</p>
+              <p style={{ fontSize: 12, color: "var(--text-dim)", margin: "0 0 16px", fontFamily: "var(--font-geist)" }}>
+                Affiché dans ton profil sur la page Mes Courses.
+              </p>
+              {unlockedBadges.length === 0 ? (
+                <p style={{ fontSize: 12, color: "var(--text-dim)", fontFamily: "var(--font-geist)" }}>
+                  Aucun badge débloqué. <a href="/recompenses" style={{ color: "var(--accent)", textDecoration: "none" }}>Voir les badges →</a>
+                </p>
+              ) : (
+                <>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))", gap: 8, marginBottom: 12 }}>
+                    {unlockedBadges.map(b => {
+                      const isSelected = featuredBadge?.id === b.id;
+                      return (
+                        <button
+                          key={b.id}
+                          onClick={() => selectFeaturedBadge(isSelected ? null : b)}
+                          style={{
+                            background: isSelected ? "rgba(245,166,35,0.1)" : "var(--surface-2)",
+                            border: isSelected ? "0.5px solid rgba(245,166,35,0.5)" : "0.5px solid var(--border-2)",
+                            borderRadius: 8, padding: "10px 8px", cursor: "pointer",
+                            display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                            transition: "all 0.15s",
+                          }}
+                        >
+                          <span style={{ fontSize: 22 }}>{b.emoji}</span>
+                          <span style={{ fontSize: 10, color: isSelected ? "var(--accent)" : "var(--text-dim)", fontFamily: "var(--font-geist)", textAlign: "center", lineHeight: 1.3, wordBreak: "break-word" }}>{b.name}</span>
+                          {isSelected && <span style={{ fontSize: 9, color: "var(--accent)", fontFamily: "var(--font-geist)", letterSpacing: "0.04em" }}>✓ Sélectionné</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {featuredBadge && (
+                    <button onClick={() => selectFeaturedBadge(null)} style={{ ...btnSecondary, fontSize: 12, padding: "5px 12px" }}>
+                      Retirer le badge mis en avant
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           </div>
         )}
