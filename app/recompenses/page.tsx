@@ -494,19 +494,18 @@ function BadgeCard({ name, desc, emoji, target, val }: { name:string; desc:strin
   const pct = Math.round(Math.min(1, val / target) * 100);
 
   return (
-    <div style={{
+    <div className={`badge-card ${unlocked ? "badge-earned" : "badge-locked"}`} style={{
       background: unlocked ? "rgba(245,166,35,0.04)" : "var(--surface)",
       border: unlocked ? "0.5px solid rgba(245,166,35,0.35)" : "0.5px solid var(--border)",
       borderRadius: 10, padding: "14px 12px", textAlign: "center",
-      position: "relative", opacity: unlocked ? 1 : 0.55,
-      transition: "all .15s",
+      position: "relative",
     }}>
       {unlocked && (
         <div style={{ position:"absolute", top:8, right:8, width:16, height:16, background:"#f5a623", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center" }}>
           <svg width="8" height="8" viewBox="0 0 10 10"><polyline points="1,5 4,8 9,2" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </div>
       )}
-      <div style={{ width:44, height:44, borderRadius:"50%", background: unlocked ? "rgba(245,166,35,0.12)" : "var(--surface-2)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 10px", fontSize:20 }}>
+      <div className="badge-icon" style={{ width:44, height:44, borderRadius:"50%", background: unlocked ? "rgba(245,166,35,0.12)" : "var(--surface-2)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 10px", fontSize:20 }}>
         {unlocked ? emoji : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>}
       </div>
       <p style={{ fontSize:12, fontWeight:500, color:"var(--text-primary)", margin:"0 0 3px", fontFamily:"var(--font-geist)" }}>{name}</p>
@@ -675,41 +674,106 @@ export default function RecompensesPage() {
           onClick={e => e.target === e.currentTarget && setShowToast(false)}
           style={{
             position:"fixed", inset:0, zIndex:9999,
-            background:"rgba(0,0,0,0.7)",
+            background:"rgba(0,0,0,0.82)",
             display:"flex", alignItems:"center", justifyContent:"center",
             padding:24,
+            animation:"unlock-overlay-in 220ms ease both",
           }}
         >
           <div style={{
-            background:"var(--surface)", border:"0.5px solid rgba(245,166,35,0.4)",
-            borderRadius:16, padding:"28px 32px", maxWidth:420, width:"100%",
-            boxShadow:"0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(245,166,35,0.08)",
+            background:"var(--surface)",
+            border:"0.5px solid rgba(245,166,35,0.5)",
+            borderRadius:20,
+            padding:"36px 32px 28px",
+            maxWidth:400,
+            width:"100%",
+            boxShadow:"0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(245,166,35,0.1), 0 0 80px rgba(245,166,35,0.07)",
+            position:"relative",
+            overflow:"hidden",
+            animation:"unlock-modal-in 480ms cubic-bezier(0.16, 1, 0.3, 1) both",
           }}>
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:20 }}>
-              <div>
-                <p style={{ fontSize:10, color:"var(--accent)", fontFamily:"var(--font-geist)", letterSpacing:"0.06em", textTransform:"uppercase", fontWeight:600, margin:"0 0 4px" }}>
-                  {newBadges.length === 1 ? "Nouveau badge débloqué !" : `${newBadges.length} nouveaux badges débloqués !`}
-                </p>
-                <p style={{ fontSize:13, color:"var(--text-dim)", fontFamily:"var(--font-geist)", margin:0 }}>
-                  Continue comme ça 🎯
-                </p>
+            {/* Glow orb */}
+            <div style={{
+              position:"absolute", top:-60, left:"50%", transform:"translateX(-50%)",
+              width:280, height:200, borderRadius:"50%",
+              background:"radial-gradient(ellipse, rgba(245,166,35,0.1) 0%, transparent 70%)",
+              pointerEvents:"none",
+            }} />
+
+            {/* Close */}
+            <button
+              onClick={() => setShowToast(false)}
+              style={{
+                position:"absolute", top:14, right:14,
+                background:"var(--surface-2)", border:"0.5px solid var(--border-2)",
+                borderRadius:"50%", cursor:"pointer", color:"var(--text-muted)",
+                width:28, height:28, display:"flex", alignItems:"center", justifyContent:"center",
+                fontSize:16, lineHeight:1,
+              }}
+            >×</button>
+
+            {/* Header */}
+            <div style={{ textAlign:"center", marginBottom:24, position:"relative" }}>
+              <div style={{ position:"relative", display:"inline-block", marginBottom:18 }}>
+                <div style={{
+                  position:"absolute", inset:-10, borderRadius:"50%",
+                  border:"1.5px solid rgba(245,166,35,0.4)",
+                  animation:"unlock-ring 1.6s ease-out 200ms both",
+                }} />
+                <div style={{
+                  position:"absolute", inset:-10, borderRadius:"50%",
+                  border:"1px solid rgba(245,166,35,0.2)",
+                  animation:"unlock-ring 1.6s ease-out 450ms both",
+                }} />
+                <span style={{
+                  fontSize:48, display:"block", lineHeight:1,
+                  animation:"unlock-emoji-pop 550ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both",
+                }}>
+                  🏆
+                </span>
               </div>
-              <button
-                onClick={() => setShowToast(false)}
-                style={{ background:"var(--surface-2)", border:"0.5px solid var(--border)", borderRadius:8, cursor:"pointer", color:"var(--text-muted)", fontSize:18, lineHeight:1, padding:"6px 10px" }}
-              >×</button>
+              <p style={{
+                fontSize:11, color:"var(--accent)", fontFamily:"var(--font-geist)",
+                letterSpacing:"0.08em", textTransform:"uppercase", fontWeight:700,
+                margin:"0 0 6px",
+              }}>
+                {newBadges.length === 1 ? "Badge débloqué !" : `${newBadges.length} badges débloqués !`}
+              </p>
+              <p style={{ fontSize:13, color:"var(--text-muted)", fontFamily:"var(--font-geist)", margin:0 }}>
+                Continue comme ça, tu es au top 🔥
+              </p>
             </div>
+
+            {/* Badge items */}
             <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:24 }}>
-              {newBadges.map(b => (
-                <div key={b.id} style={{ display:"flex", alignItems:"center", gap:14, background:"rgba(245,166,35,0.05)", border:"0.5px solid rgba(245,166,35,0.2)", borderRadius:10, padding:"12px 14px" }}>
-                  <span style={{ fontSize:26, flexShrink:0 }}>{b.emoji}</span>
-                  <span style={{ fontSize:14, fontWeight:500, color:"var(--text-primary)", fontFamily:"var(--font-geist)" }}>{b.name}</span>
+              {newBadges.map((b, i) => (
+                <div
+                  key={b.id}
+                  style={{
+                    display:"flex", alignItems:"center", gap:14,
+                    background:"rgba(245,166,35,0.06)",
+                    border:"0.5px solid rgba(245,166,35,0.25)",
+                    borderRadius:12,
+                    padding:"14px 16px",
+                    animation:`unlock-badge-in 450ms cubic-bezier(0.16, 1, 0.3, 1) ${160 + i * 90}ms both`,
+                  }}
+                >
+                  <span style={{ fontSize:28, flexShrink:0 }}>{b.emoji}</span>
+                  <span style={{ fontSize:14, fontWeight:600, color:"var(--text-primary)", fontFamily:"var(--font-geist)" }}>{b.name}</span>
                 </div>
               ))}
             </div>
+
             <button
               onClick={() => setShowToast(false)}
-              style={{ width:"100%", background:"var(--accent)", color:"#111", border:"none", borderRadius:8, padding:"10px", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"var(--font-geist)" }}
+              style={{
+                width:"100%",
+                background:"var(--accent)", color:"#111",
+                border:"none", borderRadius:10,
+                padding:"12px", fontSize:14, fontWeight:700,
+                cursor:"pointer", fontFamily:"var(--font-geist)",
+                animation:`unlock-badge-in 450ms cubic-bezier(0.16, 1, 0.3, 1) ${160 + newBadges.length * 90}ms both`,
+              }}
             >
               Super, merci !
             </button>

@@ -36,7 +36,7 @@ function getDotColor(
   colorMap: Record<string, CompagnonColor>,
   // compagnon dominant = celui dont le nom est en premier dans colorMap (ordre d'attribution)
 ): string {
-  if (!course.compagnons || course.compagnons.length === 0) return "#444";
+  if (!course.compagnons || course.compagnons.length === 0) return "#404465";
 
   // On prend le premier compagnon trouvé dans le colorMap (ordre stable)
   // qui est présent dans cette course
@@ -46,7 +46,7 @@ function getDotColor(
       return colorMap[nom].text;
     }
   }
-  return "#444";
+  return "#404465";
 }
 
 export default function EvolutionChart({
@@ -73,8 +73,13 @@ export default function EvolutionChart({
 
   if (data.length === 0) {
     return (
-      <div style={{ height: 160, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ fontSize: 13, color: "var(--text-dim)", fontFamily: "var(--font-geist)" }}>Pas assez de données</p>
+      <div style={{ height: 160, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6 }}>
+        <p style={{ fontSize: 13, color: "var(--text-dim)", fontFamily: "var(--font-geist)", margin: 0 }}>
+          Pas encore de données sur ce parcours
+        </p>
+        <p style={{ fontSize: 11, color: "var(--text-dim)", opacity: 0.5, fontFamily: "var(--font-geist)", margin: 0 }}>
+          Ajoute des sorties pour voir ton évolution
+        </p>
       </div>
     );
   }
@@ -130,8 +135,8 @@ export default function EvolutionChart({
           padding: "5px 10px", pointerEvents: "none", zIndex: 10,
           display: "flex", gap: 8, alignItems: "baseline",
         }}>
-          <span style={{ fontSize: 10, color: "#888", fontFamily: "var(--font-geist)" }}>{activePoint.date}</span>
-          <span style={{ fontSize: 13, fontWeight: 500, color: "#e8e8e8", fontFamily: "var(--font-dm-mono)" }}>
+          <span style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "var(--font-geist)" }}>{activePoint.date}</span>
+          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-primary)", fontFamily: "var(--font-dm-mono)" }}>
             {secondesToDisplay(activePoint.duree)}
           </span>
           {activePoint.isPR && <span style={{ fontSize: 10, color: "var(--coral)", fontFamily: "var(--font-geist)" }}>PR</span>}
@@ -156,14 +161,14 @@ export default function EvolutionChart({
         <LineChart data={data} margin={{ top: 24, right: 8, left: 0, bottom: 0 }}>
           <XAxis
             dataKey="date"
-            tick={{ fontSize: 10, fill: "#555", fontFamily: "var(--font-geist)" }}
+            tick={{ fontSize: 10, fill: "#5a5e80", fontFamily: "var(--font-geist)" }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
             domain={[minVal, maxVal]}
             tickFormatter={(v) => `${Math.floor(v / 60)}m`}
-            tick={{ fontSize: 10, fill: "#555", fontFamily: "var(--font-geist)" }}
+            tick={{ fontSize: 10, fill: "#5a5e80", fontFamily: "var(--font-geist)" }}
             axisLine={false}
             tickLine={false}
             width={28}
@@ -171,10 +176,10 @@ export default function EvolutionChart({
           {pr && (
             <ReferenceLine
               y={pr}
-              stroke="#D85A30"
+              stroke="#e05a2b"
               strokeDasharray="4 3"
               strokeWidth={1}
-              label={{ value: "PR", position: "insideTopLeft", fontSize: 10, fill: "#D85A30", fontFamily: "var(--font-geist)" }}
+              label={{ value: "PR", position: "insideTopLeft", fontSize: 10, fill: "#e05a2b", fontFamily: "var(--font-geist)" }}
             />
           )}
           <Line
@@ -193,7 +198,7 @@ export default function EvolutionChart({
               const hasCompagnon = course?.compagnons && course.compagnons.length > 0;
               const dotColor = hasCompagnon
                 ? getDotColor(course!, colorMap)
-                : isPR ? "#D85A30" : "#444";
+                : isPR ? "#e05a2b" : "#404465";
 
               return (
                 <circle
@@ -208,7 +213,9 @@ export default function EvolutionChart({
               );
             }}
             activeDot={false}
-            isAnimationActive={false}
+            isAnimationActive={true}
+            animationDuration={1200}
+            animationEasing="ease-out"
           />
         </LineChart>
       </ResponsiveContainer>

@@ -6,6 +6,7 @@ import { secondesToDisplay, secondesToHours, allureMinKm } from "@/lib/types";
 import type { CourseEnrichie } from "@/lib/types";
 import ObjectifCarousel from "@/components/ObjectifCarousel";
 import StreakCalendar from "@/components/StreakCalendar";
+import CountUp from "@/components/CountUp";
 
 interface Parcours {
   id: string;
@@ -170,11 +171,11 @@ export default function DashboardClient({ isLoggedIn, prenom }: { isLoggedIn: bo
         </div>
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
           {PERIODES.map((p) => (
-            <button key={p.value} onClick={() => setPeriode(p.value)} style={{
-              padding: "5px 13px", borderRadius: 20, fontSize: 12, cursor: "pointer", fontFamily: "var(--font-geist)",
+            <button key={p.value} onClick={() => setPeriode(p.value)} className="filter-pill" style={{
+              padding: "5px 13px", borderRadius: 6, fontSize: 12, cursor: "pointer", fontFamily: "var(--font-geist)",
               border: periode === p.value ? "0.5px solid rgba(245,166,35,0.5)" : "0.5px solid var(--border)",
               background: periode === p.value ? "var(--accent-dim)" : "transparent",
-              color: periode === p.value ? "var(--accent)" : "var(--text-dim)", transition: "all 0.15s",
+              color: periode === p.value ? "var(--accent)" : "var(--text-dim)",
             }}>{p.label}</button>
           ))}
         </div>
@@ -190,17 +191,29 @@ export default function DashboardClient({ isLoggedIn, prenom }: { isLoggedIn: bo
           <StreakCalendar courses={courses} />
 
           {loading ? (
-            <div style={{ textAlign: "center", padding: "40px 0", color: "var(--text-dim)", fontSize: 13 }}>Chargement...</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div className="card skeleton-pulse" style={{ height: 88 }} />
+              <div className="card skeleton-pulse" style={{ height: 220 }} />
+              <div className="card skeleton-pulse" style={{ height: 160 }} />
+            </div>
           ) : (
             <>
               {/* Dernières sorties */}
-              <div className="card">
+              <div className="card bento-hover">
                 <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 14 }}>
                   <div style={{ width: 2, height: 11, background: "var(--accent)", borderRadius: 1, flexShrink: 0 }} />
                   <p style={{ ...labelStyle, margin: 0 }}>Dernières sorties</p>
                 </div>
                 {dernieres.length === 0 ? (
-                  <p style={{ fontSize: 13, color: "var(--text-dim)", fontFamily: "var(--font-geist)" }}>Aucune course sur cette période.</p>
+                  <div style={{ padding: "28px 0", textAlign: "center" }}>
+                    <p style={{ fontSize: 13, color: "var(--text-dim)", fontFamily: "var(--font-geist)", margin: "0 0 6px" }}>
+                      Aucune sortie sur cette période
+                    </p>
+                    <p style={{ fontSize: 11, color: "var(--text-dim)", opacity: 0.6, fontFamily: "var(--font-geist)", margin: 0 }}>
+                      Change la période ou{" "}
+                      <Link href="/saisir" style={{ color: "var(--accent)", textDecoration: "none" }}>ajoute une course</Link>
+                    </p>
+                  </div>
                 ) : dernieres.map((c) => {
                   const p = data.parcours.find((pp) => pp.nom === c.parcours_nom);
                   const allure = p?.distance_km ? allureMinKm(c.duree_secondes, p.distance_km) : null;
@@ -223,8 +236,8 @@ export default function DashboardClient({ isLoggedIn, prenom }: { isLoggedIn: bo
                       {c.parcours_nom && (
                         <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
                           <span style={{ fontSize: 11, background: "var(--surface-2)", border: "0.5px solid var(--border-2)", borderRadius: 5, padding: "3px 8px", color: "var(--text-muted)", fontWeight: 500, fontFamily: "var(--font-geist)" }}>{c.parcours_nom}</span>
-                          {p?.distance_km && <span style={{ fontSize: 10, background: "var(--surface-2)", border: "0.5px solid var(--border-2)", borderRadius: 5, padding: "3px 7px", color: "var(--text-dim)", fontFamily: "var(--font-dm-mono)" }}>📍 {p.distance_km} km</span>}
-                          {p?.denivele_positif_m && <span style={{ fontSize: 10, background: "var(--surface-2)", border: "0.5px solid var(--border-2)", borderRadius: 5, padding: "3px 7px", color: "var(--text-dim)", fontFamily: "var(--font-dm-mono)" }}>⛰ +{p.denivele_positif_m}m</span>}
+                          {p?.distance_km && <span style={{ fontSize: 10, background: "var(--surface-2)", border: "0.5px solid var(--border-2)", borderRadius: 5, padding: "3px 7px", color: "var(--text-dim)", fontFamily: "var(--font-dm-mono)" }}>{p.distance_km} km</span>}
+                          {p?.denivele_positif_m && <span style={{ fontSize: 10, background: "var(--surface-2)", border: "0.5px solid var(--border-2)", borderRadius: 5, padding: "3px 7px", color: "var(--text-dim)", fontFamily: "var(--font-dm-mono)" }}>D+ {p.denivele_positif_m} m</span>}
                         </span>
                       )}
                     </div>
@@ -234,7 +247,7 @@ export default function DashboardClient({ isLoggedIn, prenom }: { isLoggedIn: bo
 
               {/* Parcours */}
               {parcoursTriesParSorties.length > 0 && (
-                <div className="card">
+                <div className="card bento-hover">
                   <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 14 }}>
                     <div style={{ width: 2, height: 11, background: "var(--accent)", borderRadius: 1, flexShrink: 0 }} />
                     <p style={{ ...labelStyle, margin: 0 }}>Parcours</p>
@@ -247,14 +260,14 @@ export default function DashboardClient({ isLoggedIn, prenom }: { isLoggedIn: bo
                       const allureMoy = p.distance_km && moy ? allureMinKm(moy, p.distance_km) : null;
                       const allurePR = p.distance_km && pr ? allureMinKm(pr, p.distance_km) : null;
                       return (
-                        <div key={p.id} style={{ background: "var(--surface-2)", borderRadius: 10, padding: "12px 14px" }}>
+                        <div key={p.id} className="bento-hover" style={{ background: "var(--surface-2)", border: "0.5px solid var(--border)", borderRadius: 10, padding: "12px 14px" }}>
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                             <p style={{ fontSize: 12, fontWeight: 500, color: "var(--text-primary)", margin: 0, fontFamily: "var(--font-geist)" }}>{p.nom}</p>
                             <span style={{ fontSize: 10, color: "var(--text-dim)", fontFamily: "var(--font-dm-mono)" }}>{cp.length}×</span>
                           </div>
                           <div style={{ display: "flex", gap: 4, marginBottom: 10, flexWrap: "wrap" }}>
-                            {p.distance_km && <span style={{ fontSize: 10, background: "var(--surface-3)", border: "0.5px solid var(--border)", borderRadius: 4, padding: "2px 7px", color: "var(--text-muted)", fontFamily: "var(--font-dm-mono)" }}>📍 {p.distance_km} km</span>}
-                            {p.denivele_positif_m && <span style={{ fontSize: 10, background: "var(--surface-3)", border: "0.5px solid var(--border)", borderRadius: 4, padding: "2px 7px", color: "var(--text-muted)", fontFamily: "var(--font-dm-mono)" }}>⛰ +{p.denivele_positif_m}m</span>}
+                            {p.distance_km && <span style={{ fontSize: 10, background: "var(--surface-3)", border: "0.5px solid var(--border)", borderRadius: 4, padding: "2px 7px", color: "var(--text-muted)", fontFamily: "var(--font-dm-mono)" }}>{p.distance_km} km</span>}
+                            {p.denivele_positif_m && <span style={{ fontSize: 10, background: "var(--surface-3)", border: "0.5px solid var(--border)", borderRadius: 4, padding: "2px 7px", color: "var(--text-muted)", fontFamily: "var(--font-dm-mono)" }}>D+ {p.denivele_positif_m} m</span>}
                           </div>
                           <div style={{ display: "flex", gap: 14 }}>
                             <div>
@@ -282,7 +295,7 @@ export default function DashboardClient({ isLoggedIn, prenom }: { isLoggedIn: bo
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
           {/* Allure — héro metric */}
-          <div style={{
+          <div className="bento-hover" style={{
             background: "var(--accent-dim)",
             border: "0.5px solid rgba(245,166,35,0.28)",
             borderRadius: 14,
@@ -290,7 +303,7 @@ export default function DashboardClient({ isLoggedIn, prenom }: { isLoggedIn: bo
             position: "relative",
             overflow: "hidden",
           }}>
-            <div style={{ position: "absolute", bottom: -18, right: -18, width: 100, height: 100, borderRadius: "50%", background: "rgba(245,166,35,0.05)", border: "0.5px solid rgba(245,166,35,0.08)" }} />
+            <div style={{ position: "absolute", bottom: -18, right: -18, width: 100, height: 100, borderRadius: "50%", background: "rgba(245,166,35,0.05)", border: "0.5px solid rgba(245,166,35,0.08)", animation: "orb-float 6s ease-in-out infinite" }} />
             <p style={labelStyle}>Allure moyenne</p>
             <p style={{ fontSize: 52, fontWeight: 500, color: "var(--accent)", margin: "6px 0 2px", lineHeight: 1, fontFamily: "var(--font-dm-mono)", letterSpacing: "-0.03em" }}>{allureMoyGlobale ?? "—"}</p>
             <p style={{ fontSize: 11, color: "rgba(245,166,35,0.6)", margin: 0, fontFamily: "var(--font-geist)" }}>min/km</p>
@@ -298,18 +311,17 @@ export default function DashboardClient({ isLoggedIn, prenom }: { isLoggedIn: bo
 
           {/* 3 mini-KPIs */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-            <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 10, padding: "12px 10px", textAlign: "center" }}>
-              <p style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)", margin: "0 0 3px", fontFamily: "var(--font-dm-mono)" }}>{secondesToHours(totalSecondes)}</p>
-              <p style={{ ...labelStyle, margin: 0, fontSize: 9 }}>Temps</p>
-            </div>
-            <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 10, padding: "12px 10px", textAlign: "center" }}>
-              <p style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)", margin: "0 0 3px", fontFamily: "var(--font-dm-mono)" }}>{totalKm.toFixed(0)}<span style={{ fontSize: 11, color: "var(--text-dim)" }}> km</span></p>
-              <p style={{ ...labelStyle, margin: 0, fontSize: 9 }}>Distance</p>
-            </div>
-            <div style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 10, padding: "12px 10px", textAlign: "center" }}>
-              <p style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)", margin: "0 0 3px", fontFamily: "var(--font-dm-mono)" }}>{nbCourses}</p>
-              <p style={{ ...labelStyle, margin: 0, fontSize: 9 }}>Sorties</p>
-            </div>
+            {([
+              { l: "Temps", node: secondesToHours(totalSecondes) },
+              { l: "Distance", node: <CountUp value={totalKm} decimals={0} suffix=" km" /> },
+              { l: "Sorties", node: <CountUp value={nbCourses} /> },
+            ] as { l: string; node: React.ReactNode }[]).map(({ l, node }) => (
+              <div key={l} className="bento-hover" style={{ background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 12, padding: "14px 12px", position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", bottom: -12, right: -12, width: 60, height: 60, borderRadius: "50%", background: "rgba(245,166,35,0.03)", pointerEvents: "none" }} />
+                <p style={{ fontSize: 9, color: "rgba(245,166,35,0.65)", letterSpacing: "0.08em", textTransform: "uppercase", margin: "0 0 6px", fontFamily: "var(--font-geist)", fontWeight: 500 }}>{l}</p>
+                <p style={{ fontSize: 22, fontWeight: 600, color: "var(--accent)", margin: 0, lineHeight: 1, fontFamily: "var(--font-dm-mono)", letterSpacing: "-0.03em" }}>{node}</p>
+              </div>
+            ))}
           </div>
 
           {/* Objectifs */}
@@ -330,7 +342,7 @@ export default function DashboardClient({ isLoggedIn, prenom }: { isLoggedIn: bo
               })
               .filter(Boolean);
             return (
-              <div key={comp.id} style={{ background: col.bg, border: `0.5px solid ${col.border}`, borderRadius: 10, padding: "14px 16px" }}>
+              <div key={comp.id} className="bento-hover" style={{ background: col.bg, border: `0.5px solid ${col.border}`, borderRadius: 10, padding: "14px 16px" }}>
                 <p style={{ ...labelStyle, color: col.border, margin: "0 0 8px" }}>Avec {comp.nom}</p>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: detailParParcours.length > 0 ? 10 : 0 }}>
                   <span style={{ fontSize: 28, fontWeight: 500, color: col.text, fontFamily: "var(--font-dm-mono)", lineHeight: 1 }}>{coursesWith.length}</span>

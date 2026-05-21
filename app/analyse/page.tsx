@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import RevealOnScroll from "@/components/RevealOnScroll";
 
 interface Activity {
   id: number; name: string; sport_type: string;
@@ -291,6 +292,7 @@ export default function AnalysePage() {
             {parcoursActif&&actsForParcours.length>=2?(
               <>
                 {/* KPIs */}
+                <RevealOnScroll delay={0}>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10,marginBottom:16}}>
                   {(()=>{
                     const sp=[...paces].map(p=>paceToSec(p.speed)).sort((a,b)=>a-b);
@@ -317,10 +319,11 @@ export default function AnalysePage() {
                       else { trend="→ Stable"; tc="var(--text-dim)"; }
                     }
                     return[{l:"Sorties",v:actsForParcours.length,c:undefined},{l:"Meilleure allure",v:secToPaceStr(best),c:undefined},{l:"Allure médiane",v:secToPaceStr(med),c:undefined},{l:"Moy. 3 dernières",v:secToPaceStr(last3),c:undefined},{l:"Tendance",v:trend,c:tc}].map(({l,v,c})=>(
-                      <div key={l} style={card}><p style={{...lbl,margin:"0 0 6px"}}>{l}</p><p style={{fontSize:17,fontWeight:500,color:c??"var(--text-primary)",margin:0,fontFamily:"var(--font-dm-mono)"}}>{v}</p></div>
+                      <div key={l} className="bento-hover" style={card}><p style={{...lbl,margin:"0 0 6px"}}>{l}</p><p style={{fontSize:17,fontWeight:500,color:c??"var(--text-primary)",margin:0,fontFamily:"var(--font-dm-mono)"}}>{v}</p></div>
                     ));
                   })()}
                 </div>
+                </RevealOnScroll>
 
                 {/* Infos parcours */}
                 <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:16}}>
@@ -330,11 +333,13 @@ export default function AnalysePage() {
                 </div>
 
                 {/* Boxplot */}
-                <div style={{...card,marginBottom:16}}>
+                <RevealOnScroll delay={0}>
+                <div className="bento-hover" style={{...card,marginBottom:16}}>
                   <p style={{...lbl,margin:"0 0 4px"}}>Distribution des allures</p>
                   <p style={{fontSize:11,color:"var(--text-dim)",margin:"0 0 16px",fontFamily:"var(--font-geist)"}}>Clique sur un point pour voir les détails d'une sortie</p>
                   <BoxPlot paces={paces} selectedId={selectedActivityId} hoveredId={hoveredId} onSelect={setSelectedActivityId} onHover={setHoveredId}/>
                 </div>
+                </RevealOnScroll>
 
                 {/* Sortie sélectionnée */}
                 {selectedActivity&&selPaceNum&&(
@@ -349,9 +354,11 @@ export default function AnalysePage() {
                 )}
 
                 {/* Évolution */}
-                <div style={{...card,marginBottom:16}}>
+                <RevealOnScroll delay={80}>
+                <div className="bento-hover" style={{...card,marginBottom:16}}>
                   <EvolutionLine paces={paces} selectedId={selectedActivityId} hoveredId={hoveredId} onSelect={setSelectedActivityId} onHover={setHoveredId}/>
                 </div>
+                </RevealOnScroll>
 
 
                 {/* ── 1. Corrélation Solo vs Groupe ─────────────────────── */}
@@ -364,7 +371,7 @@ export default function AnalysePage() {
                   const diff=paceToSec(sSolo)-paceToSec(sGroupe); // positif = solo plus lent
                   const isBetterGroupe=diff>0;
                   return(
-                    <div style={{...card,marginBottom:16}}>
+                    <div className="bento-hover" style={{...card,marginBottom:16}}>
                       <p style={{...lbl,margin:"0 0 16px"}}>Solo vs Groupe</p>
                       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
                         {[{l:"Allure moy. solo",v:fmtPace(sSolo),c:"var(--text-primary)",n:solo.length},{l:"Allure moy. groupe",v:fmtPace(sGroupe),c:"#1d9e75",n:groupe.length}].map(({l,v,c,n})=>(
@@ -407,7 +414,7 @@ export default function AnalysePage() {
                   function yOf(s:number){return padT+((paceToSec(s)-minPaceAll)/rngPace)*(H-padT-padB);}
                   const MOIS=["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"];
                   return(
-                    <div style={{...card,marginBottom:16}}>
+                    <div className="bento-hover" style={{...card,marginBottom:16}}>
                       <p style={{...lbl,margin:"0 0 4px"}}>Analyse saisonnière</p>
                       <p style={{fontSize:11,color:"var(--text-dim)",margin:"0 0 14px",fontFamily:"var(--font-geist)"}}>Allure moyenne par mois — les meilleures allures sont en bas</p>
                       <svg width="100%" viewBox={`0 0 ${W} ${H}`}>
@@ -462,7 +469,7 @@ export default function AnalysePage() {
                   function xOf(d:number){return padL+(d/maxDays)*(W-padL-padR);}
                   function yOf(s:number){return padT+((paceToSec(s)-minPace)/rngPace)*(H-padT-padB);}
                   return(
-                    <div style={{...card,marginBottom:16}}>
+                    <div className="bento-hover" style={{...card,marginBottom:16}}>
                       <p style={{...lbl,margin:"0 0 4px"}}>Récupération & performance</p>
                       <p style={{fontSize:11,color:"var(--text-dim)",margin:"0 0 14px",fontFamily:"var(--font-geist)"}}>Jours de repos avant la sortie vs allure — les meilleures allures sont en bas</p>
                       <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{marginBottom:8}}>
@@ -516,7 +523,7 @@ export default function AnalysePage() {
                   const dateStr=datePR.toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});
                   const predictedPRSec=intercept+slope*(n+sortiesRestantes-1);
                   return(
-                    <div style={{...card,marginBottom:16,background:"rgba(245,166,35,0.03)",border:"0.5px solid rgba(245,166,35,0.15)"}}>
+                    <div className="bento-hover" style={{...card,marginBottom:16,background:"rgba(245,166,35,0.03)",border:"0.5px solid rgba(245,166,35,0.15)"}}>
                       <p style={{...lbl,color:"#f5a623",margin:"0 0 12px"}}>Prédicteur de PR</p>
                       <div style={{display:"flex",gap:20,flexWrap:"wrap",alignItems:"center"}}>
                         <div><p style={{...lbl,margin:"0 0 4px"}}>PR actuel</p><p style={{fontSize:22,fontWeight:500,color:"var(--text-primary)",margin:0,fontFamily:"var(--font-dm-mono)"}}>{secToPaceStr(currentBestSec)}</p></div>
@@ -552,7 +559,7 @@ export default function AnalysePage() {
                   function xOf(i:number){return padL+i*barSpacing+barSpacing/2;}
                   const avgKm=weeks.reduce((s,[,v])=>s+v.km,0)/weeks.length;
                   return(
-                    <div style={{...card,marginBottom:16}}>
+                    <div className="bento-hover" style={{...card,marginBottom:16}}>
                       <p style={{...lbl,margin:"0 0 4px"}}>Charge d'entraînement</p>
                       <p style={{fontSize:11,color:"var(--text-dim)",margin:"0 0 14px",fontFamily:"var(--font-geist)"}}>Km courus par semaine (20 dernières semaines) · Moy: {avgKm.toFixed(1)} km/sem</p>
                       <svg width="100%" viewBox={`0 0 ${W} ${H}`}>
@@ -586,7 +593,7 @@ export default function AnalysePage() {
                   const rng=bestSpeed-worstSpeed||1;
                   const MOIS=["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"];
                   return(
-                    <div style={{...card,marginBottom:16}}>
+                    <div className="bento-hover" style={{...card,marginBottom:16}}>
                       <p style={{...lbl,margin:"0 0 4px"}}>Heatmap des performances</p>
                       <p style={{fontSize:11,color:"var(--text-dim)",margin:"0 0 16px",fontFamily:"var(--font-geist)"}}>Chaque case = une sortie · Plus foncé = meilleure allure</p>
                       {years.map(yr=>{
@@ -626,7 +633,7 @@ export default function AnalysePage() {
                 })()}
 
                 {/* Tableau classement */}
-                <div style={{...card,padding:0,overflow:"hidden",marginBottom:16}}>
+                <div className="bento-hover" style={{...card,padding:0,overflow:"hidden",marginBottom:16}}>
                   <div style={{padding:"12px 18px",borderBottom:"0.5px solid var(--border)"}}><p style={{...lbl,margin:0}}>Classement — {parcoursActif.nom}</p></div>
                   <table style={{width:"100%",borderCollapse:"collapse"}}>
                     <thead><tr style={{borderBottom:"0.5px solid var(--border)"}}>

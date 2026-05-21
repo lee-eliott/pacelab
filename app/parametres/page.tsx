@@ -317,12 +317,19 @@ export default function ParametresPage() {
         const { data: prefs } = await supabase.from("user_preferences").select("time_field").eq("user_id", user.id).single();
         if (prefs?.time_field) setTimeFieldState(prefs.time_field as "moving_time" | "elapsed_time");
       }
-      // Badge mis en avant — unlocked depuis localStorage, featured_id depuis Supabase
+      // Badge mis en avant
       try {
         const ubRaw = localStorage.getItem("pacelab_unlocked_badges_full");
         const unlocked: {id:string;name:string;emoji:string}[] = ubRaw ? JSON.parse(ubRaw) : [];
         if (unlocked.length) setUnlockedBadges(unlocked);
 
+        // Source de vérité principale : pacelab_featured_badge (écrit à chaque sélection)
+        const cachedRaw = localStorage.getItem("pacelab_featured_badge");
+        if (cachedRaw) {
+          try { setFeaturedBadgeState(JSON.parse(cachedRaw)); } catch {}
+        }
+
+        // Sync Supabase : peut confirmer / mettre à jour, jamais effacer
         if (user) {
           const { data: badgeState } = await supabase
             .from("user_badge_state")
@@ -331,7 +338,10 @@ export default function ParametresPage() {
             .single();
           if (badgeState?.featured_id) {
             const found = unlocked.find(b => b.id === badgeState.featured_id);
-            if (found) setFeaturedBadgeState(found);
+            if (found) {
+              setFeaturedBadgeState(found);
+              localStorage.setItem("pacelab_featured_badge", JSON.stringify(found));
+            }
           }
         }
       } catch {}
@@ -741,16 +751,33 @@ export default function ParametresPage() {
                           key={b.id}
                           onClick={() => selectFeaturedBadge(isSelected ? null : b)}
                           style={{
-                            background: isSelected ? "rgba(245,166,35,0.1)" : "var(--surface-2)",
-                            border: isSelected ? "0.5px solid rgba(245,166,35,0.5)" : "0.5px solid var(--border-2)",
-                            borderRadius: 8, padding: "10px 8px", cursor: "pointer",
+                            position: "relative",
+                            background: isSelected ? "rgba(245,166,35,0.15)" : "var(--surface-2)",
+                            border: isSelected ? "1.5px solid rgba(245,166,35,0.75)" : "0.5px solid var(--border-2)",
+                            borderRadius: 10,
+                            padding: "12px 8px 10px",
+                            cursor: "pointer",
                             display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-                            transition: "all 0.15s",
+                            transform: isSelected ? "scale(1.06)" : "scale(1)",
+                            boxShadow: isSelected
+                              ? "0 0 0 3px rgba(245,166,35,0.18), 0 6px 20px rgba(0,0,0,0.45)"
+                              : "none",
+                            transition: "all 0.18s cubic-bezier(0.16,1,0.3,1)",
                           }}
                         >
-                          <span style={{ fontSize: 22 }}>{b.emoji}</span>
-                          <span style={{ fontSize: 10, color: isSelected ? "var(--accent)" : "var(--text-dim)", fontFamily: "var(--font-geist)", textAlign: "center", lineHeight: 1.3, wordBreak: "break-word" }}>{b.name}</span>
-                          {isSelected && <span style={{ fontSize: 9, color: "var(--accent)", fontFamily: "var(--font-geist)", letterSpacing: "0.04em" }}>✓ Sélectionné</span>}
+                          {isSelected && (
+                            <span style={{
+                              position: "absolute", top: 4, right: 4,
+                              width: 16, height: 16, borderRadius: "50%",
+                              background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center",
+                            }}>
+                              <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+                                <path d="M1.5 4.5L3.5 6.5L7.5 2.5" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </span>
+                          )}
+                          <span style={{ fontSize: 24 }}>{b.emoji}</span>
+                          <span style={{ fontSize: 10, color: isSelected ? "var(--accent)" : "var(--text-dim)", fontWeight: isSelected ? 600 : 400, fontFamily: "var(--font-geist)", textAlign: "center", lineHeight: 1.3, wordBreak: "break-word" }}>{b.name}</span>
                         </button>
                       );
                     })}
