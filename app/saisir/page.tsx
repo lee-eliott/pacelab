@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
 import { minSecToSecondes, secondesToDisplay, allureMinKm } from "@/lib/types";
+import { inputStyle, labelStyle } from "@/lib/styles";
 
 interface Parcours {
   id: string;
@@ -22,27 +23,6 @@ const CUSTOM_ID = "__custom__";
 
 // ─── styles hors composant ────────────────────────────────────────────────────
 
-const inputStyle: React.CSSProperties = {
-  background: "var(--surface-2)",
-  border: "0.5px solid var(--border-2)",
-  borderRadius: 6,
-  color: "var(--text-primary)",
-  padding: "8px 12px",
-  fontSize: 13,
-  outline: "none",
-  width: "100%",
-  fontFamily: "var(--font-geist)",
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: 10,
-  color: "var(--text-dim)",
-  letterSpacing: "0.05em",
-  textTransform: "uppercase",
-  display: "block",
-  marginBottom: 6,
-  fontFamily: "var(--font-geist)",
-};
 
 const btnPrimary: React.CSSProperties = {
   background: "var(--accent)",

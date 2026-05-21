@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import { lbl } from "@/lib/styles";
 
 interface Activity {
   id: number; name: string; sport_type: string;
@@ -486,7 +487,6 @@ function getBadges(s: ReturnType<typeof computeStats>) {
 
 // ─── Composants ───────────────────────────────────────────────────────────────
 
-const lbl: React.CSSProperties = { fontSize:10,color:"var(--text-muted)",letterSpacing:".05em",textTransform:"uppercase",fontFamily:"var(--font-geist)",margin:"0 0 6px",display:"block" };
 const card: React.CSSProperties = { background:"var(--surface)",border:"0.5px solid var(--border)",borderRadius:12,padding:"18px 20px" };
 
 function BadgeCard({ name, desc, emoji, target, val }: { name:string; desc:string; emoji:string; target:number; val:number }) {

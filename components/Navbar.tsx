@@ -132,13 +132,16 @@ export default function Navbar({ isLoggedIn, isDemo = false }: { isLoggedIn: boo
           border: "0.5px solid rgba(216,90,48,0.4)",
           borderRadius: 10,
           padding: "12px 18px",
-          zIndex: 9999,
+          zIndex: 100,
           display: "flex",
           alignItems: "center",
           gap: 10,
           boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
         }}>
-          <span style={{ fontSize: 16 }}>🔒</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
           <span style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "var(--font-geist)" }}>
             Déconnexion impossible en mode démonstration
           </span>
@@ -188,6 +191,8 @@ export default function Navbar({ isLoggedIn, isDemo = false }: { isLoggedIn: boo
               <Link
                 key={link.href}
                 href={link.href}
+                aria-current={isActive ? "page" : undefined}
+                className="nav-link"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -198,7 +203,7 @@ export default function Navbar({ isLoggedIn, isDemo = false }: { isLoggedIn: boo
                   fontSize: 13,
                   color: isActive ? "var(--text-primary)" : "var(--text-dim)",
                   fontFamily: "var(--font-geist)",
-                  transition: "color 0.15s",
+                  transition: "color 0.15s, background 0.15s",
                   borderBottom: isActive ? "2px solid var(--accent)" : "2px solid transparent",
                   marginBottom: -1,
                 }}
@@ -230,6 +235,7 @@ export default function Navbar({ isLoggedIn, isDemo = false }: { isLoggedIn: boo
           {isLoggedIn ? (
             <button
               onClick={handleLogout}
+              className="btn-logout"
               style={{
                 background: "transparent",
                 border: "0.5px solid var(--border-2)",
@@ -239,7 +245,7 @@ export default function Navbar({ isLoggedIn, isDemo = false }: { isLoggedIn: boo
                 padding: "5px 14px",
                 cursor: "pointer",
                 fontFamily: "var(--font-geist)",
-                transition: "border-color 0.15s, color 0.15s",
+                transition: "border-color 0.15s, color 0.15s, background 0.15s",
               }}
             >
               Déconnexion

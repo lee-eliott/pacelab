@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import RevealOnScroll from "@/components/RevealOnScroll";
+import { lbl } from "@/lib/styles";
 
 interface Activity {
   id: number; name: string; sport_type: string;
@@ -22,7 +23,6 @@ function paceToSec(speed: number) { return speed>0?1000/speed:9999; }
 function secToPaceStr(sec: number) { return`${Math.floor(sec/60)}'${String(Math.round(sec%60)).padStart(2,"0")}"`; }
 function quantile(sorted: number[], q: number) { const pos=(sorted.length-1)*q,base=Math.floor(pos),rest=pos-base; return sorted[base+1]!==undefined?sorted[base]+rest*(sorted[base+1]-sorted[base]):sorted[base]; }
 
-const lbl: React.CSSProperties = { fontSize:10,color:"var(--text-muted)",letterSpacing:".05em",textTransform:"uppercase",fontFamily:"var(--font-geist)",margin:"0 0 6px",display:"block" };
 const card: React.CSSProperties = { background:"var(--surface)",border:"0.5px solid var(--border)",borderRadius:12,padding:"20px 22px" };
 
 function BoxPlot({ paces, selectedId, hoveredId, onSelect, onHover }: { paces:{speed:number;date:string;id:number}[]; selectedId:number|null; hoveredId:number|null; onSelect:(id:number)=>void; onHover:(id:number|null)=>void }) {

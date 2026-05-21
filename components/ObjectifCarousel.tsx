@@ -81,7 +81,6 @@ function calcProgression(obj: Objectif, courses: Props["courses"]) {
   const termine = now > fin;
   const echoue = termine && !atteint;
 
-  // Calcul de l'objectif lissé
   let diffLissee: number | null = null;
   if (!atteint && !echoue && now >= debut && now <= fin) {
     const totalMs = fin.getTime() - debut.getTime();
@@ -89,15 +88,9 @@ function calcProgression(obj: Objectif, courses: Props["courses"]) {
     const ratioEcoule = ecoulesMs / totalMs;
     const objectifLisse = ratioEcoule * obj.valeur;
     const diff = valeur - objectifLisse;
-
-    // Arrondi selon le type
-    if (obj.type === "duree") {
-      diffLissee = Math.round(diff); // en minutes
-    } else if (obj.type === "distance") {
-      diffLissee = Math.round(diff * 10) / 10; // en km avec 1 décimale
-    } else {
-      diffLissee = Math.round(diff); // en nombre de sorties
-    }
+    if (obj.type === "duree") diffLissee = Math.round(diff);
+    else if (obj.type === "distance") diffLissee = Math.round(diff * 10) / 10;
+    else diffLissee = Math.round(diff);
   }
 
   return {
@@ -111,18 +104,14 @@ function calcProgression(obj: Objectif, courses: Props["courses"]) {
 
 function filtrerObjectifs(objectifs: Objectif[], periode: string | undefined): Objectif[] {
   if (!periode || periode === "tout") return objectifs;
-
   if (periode === "7j" || periode === "30j") {
     return objectifs.filter((o) => o.periode === "hebdo" || o.periode === "mensuel");
   }
-
   if (periode.match(/^\d{4}$/)) {
     const annee = parseInt(periode);
     return objectifs.filter((o) => {
       if (o.periode === "annuel") return o.annee === annee;
-      if (o.periode === "mensuel" || o.periode === "hebdo") {
-        return annee === new Date().getFullYear();
-      }
+      if (o.periode === "mensuel" || o.periode === "hebdo") return annee === new Date().getFullYear();
       if (!o.periode && o.date_debut && o.date_fin) {
         const debut = new Date(o.date_debut);
         const fin = new Date(o.date_fin);
@@ -131,9 +120,24 @@ function filtrerObjectifs(objectifs: Objectif[], periode: string | undefined): O
       return false;
     });
   }
-
   return objectifs;
 }
+
+function formatDiff(diff: number, type: string) {
+  const abs = Math.abs(diff);
+  if (type === "distance") return `${abs.toFixed(1)} km`;
+  if (type === "duree") {
+    if (abs >= 60) {
+      const h = Math.floor(abs / 60);
+      const m = abs % 60;
+      return m > 0 ? `${h}h${m.toString().padStart(2, "0")}` : `${h}h`;
+    }
+    return `${abs} min`;
+  }
+  return `${abs} sortie${abs > 1 ? "s" : ""}`;
+}
+
+const CIRCUMFERENCE = 2 * Math.PI * 44; // r=44
 
 export default function ObjectifCarousel({ objectifs, courses, periode }: Props) {
   const [current, setCurrent] = useState(0);
@@ -145,9 +149,7 @@ export default function ObjectifCarousel({ objectifs, courses, periode }: Props)
   function startTimer(len: number) {
     if (timerRef.current) clearTimeout(timerRef.current);
     if (len <= 1) return;
-    timerRef.current = setTimeout(() => {
-      setCurrent((prev) => (prev + 1) % len);
-    }, 7000);
+    timerRef.current = setTimeout(() => setCurrent((prev) => (prev + 1) % len), 7000);
   }
 
   function goTo(index: number) {
@@ -155,174 +157,142 @@ export default function ObjectifCarousel({ objectifs, courses, periode }: Props)
     startTimer(objectifsFiltres.length);
   }
 
-  useEffect(() => {
-    setCurrent(0);
-  }, [periode]);
+  function prev() { goTo((currentSafe - 1 + objectifsFiltres.length) % objectifsFiltres.length); }
+  function next() { goTo((currentSafe + 1) % objectifsFiltres.length); }
 
+  useEffect(() => { setCurrent(0); }, [periode]);
   useEffect(() => {
     startTimer(objectifsFiltres.length);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [currentSafe, objectifsFiltres.length]);
 
-  const labelStyle: React.CSSProperties = {
-    fontSize: 10,
-    color: "var(--text-dim)",
-    letterSpacing: "0.05em",
-    textTransform: "uppercase",
-    margin: "0 0 6px",
-    fontFamily: "var(--font-geist)",
+  const lbl: React.CSSProperties = {
+    fontSize: 9, color: "var(--text-dim)", letterSpacing: "0.08em",
+    textTransform: "uppercase", margin: 0, fontFamily: "var(--font-geist)", fontWeight: 500,
   };
 
+  // Empty state
   if (objectifsFiltres.length === 0) {
     return (
-      <div style={{
-        background: "var(--surface)",
-        border: "0.5px solid var(--border)",
-        borderRadius: 10,
-        padding: "14px 16px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        minHeight: 90,
+      <div className="bento-hover" style={{
+        background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 14,
+        padding: "22px", display: "flex", flexDirection: "column", alignItems: "center",
+        justifyContent: "center", gap: 10, flexGrow: 1, minHeight: 160,
       }}>
-        <p style={labelStyle}>Objectifs</p>
-        <p style={{ fontSize: 13, color: "var(--text-dim)", margin: 0, fontFamily: "var(--font-geist)" }}>
-          Aucun objectif sur cette période
-        </p>
-        <p style={{ fontSize: 11, color: "var(--text-dim)", margin: "4px 0 0", fontFamily: "var(--font-geist)", opacity: 0.6 }}>
-          Crée des objectifs dans Paramètres
-        </p>
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}>
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+        <div style={{ textAlign: "center" }}>
+          <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "0 0 4px", fontFamily: "var(--font-geist)" }}>Crée ton premier objectif</p>
+          <p style={{ fontSize: 11, color: "var(--text-dim)", margin: 0, fontFamily: "var(--font-geist)", opacity: 0.6 }}>Paramètres → Objectifs</p>
+        </div>
       </div>
     );
   }
 
   const obj = objectifsFiltres[currentSafe];
   const prog = calcProgression(obj, courses);
-  const color = prog.atteint ? "var(--green)" : prog.echoue ? "#555" : "var(--accent)";
-
+  const color = prog.atteint ? "var(--green)" : prog.echoue ? "#444" : "var(--accent)";
   const isEnAvance = prog.diffLissee !== null && prog.diffLissee >= 0;
-  const isEnRetard = prog.diffLissee !== null && prog.diffLissee < 0;
 
-  // Formate la valeur de l'écart selon le type
-  function formatDiff(diff: number, type: string) {
-    const abs = Math.abs(diff);
-    if (type === "distance") return `${abs.toFixed(1)} km`;
-    if (type === "duree") {
-      if (abs >= 60) {
-        const h = Math.floor(abs / 60);
-        const m = abs % 60;
-        return m > 0 ? `${h}h${m.toString().padStart(2, "0")}` : `${h}h`;
-      }
-      return `${abs} min`;
-    }
-    return `${abs} sortie${abs > 1 ? "s" : ""}`;
-  }
+  const dashOffset = CIRCUMFERENCE * (1 - prog.pct / 100);
 
   return (
-    <div style={{
-      background: "var(--surface)",
-      border: "0.5px solid var(--border)",
-      borderRadius: 10,
-      padding: "14px 16px",
-      minHeight: 90,
-      display: "flex",
-      flexDirection: "column",
+    <div className="bento-hover" style={{
+      background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 14,
+      padding: "18px 14px", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "space-between", flexGrow: 1, minHeight: 160,
+      position: "relative",
     }}>
-      <p style={labelStyle}>Objectif · {periodeLabel(obj)}</p>
-
-      <p style={{
-        fontSize: 12,
-        color: "var(--text-muted)",
-        margin: "0 0 8px",
-        fontFamily: "var(--font-geist)",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-      }}>
-        {obj.titre}
+      {/* Label */}
+      <p style={{ ...lbl, alignSelf: "flex-start", marginBottom: 2 }}>
+        Objectif · {periodeLabel(obj)}
       </p>
 
-      <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 8 }}>
-        <span style={{ fontSize: 22, fontWeight: 500, color, fontFamily: "var(--font-dm-mono)", lineHeight: 1 }}>
-          {prog.pct}%
-        </span>
-        <span style={{ fontSize: 11, color: "var(--text-dim)", fontFamily: "var(--font-geist)" }}>
+      {/* Cercle de progression + navigation */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, justifyContent: "center", width: "100%" }}>
+        {/* Flèche prev */}
+        {objectifsFiltres.length > 1 && (
+          <button onClick={prev} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", color: "var(--text-dim)", display: "flex", alignItems: "center", transition: "color 150ms ease", flexShrink: 0 }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--accent)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--text-dim)")}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+          </button>
+        )}
+
+        {/* Cercle SVG */}
+        <div style={{ position: "relative", width: 100, height: 100, flexShrink: 0 }}>
+          <svg width="100" height="100" viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)" }}>
+            {/* Track */}
+            <circle cx="50" cy="50" r="44" fill="none" stroke="var(--border-2)" strokeWidth="5" />
+            {/* Progress */}
+            <circle
+              cx="50" cy="50" r="44" fill="none"
+              stroke={color} strokeWidth="5"
+              strokeLinecap="round"
+              strokeDasharray={CIRCUMFERENCE}
+              strokeDashoffset={dashOffset}
+              style={{ transition: "stroke-dashoffset 0.6s cubic-bezier(0.16, 1, 0.3, 1)" }}
+            />
+          </svg>
+          {/* % centré */}
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontSize: 28, fontWeight: 600, color, fontFamily: "var(--font-dm-mono)", letterSpacing: "-0.04em", lineHeight: 1 }}>
+              {prog.pct}
+            </span>
+            <span style={{ fontSize: 9, color: "var(--text-dim)", fontFamily: "var(--font-geist)", marginTop: 1 }}>%</span>
+          </div>
+        </div>
+
+        {/* Flèche next */}
+        {objectifsFiltres.length > 1 && (
+          <button onClick={next} style={{ background: "none", border: "none", cursor: "pointer", padding: "4px", color: "var(--text-dim)", display: "flex", alignItems: "center", transition: "color 150ms ease", flexShrink: 0 }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--accent)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--text-dim)")}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+          </button>
+        )}
+      </div>
+
+      {/* Nom + sous-infos */}
+      <div style={{ textAlign: "center", width: "100%" }}>
+        <p style={{ fontSize: 13, color: "var(--text-muted)", margin: "0 0 3px", fontFamily: "var(--font-geist)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {obj.titre}
+        </p>
+        <p style={{ fontSize: 11, color: "var(--text-dim)", margin: 0, fontFamily: "var(--font-dm-mono)" }}>
           {prog.valeur} / {obj.valeur} {typeUnite(obj.type)}
-        </span>
+        </p>
+
+        {/* Indicateur lissé */}
+        {prog.diffLissee !== null && (
+          <p style={{ fontSize: 10, color: isEnAvance ? "var(--green)" : "#ef4444", margin: "4px 0 0", fontFamily: "var(--font-geist)" }}>
+            {isEnAvance ? "↑" : "↓"} {formatDiff(prog.diffLissee!, obj.type)} {isEnAvance ? "d'avance" : "de retard"}
+          </p>
+        )}
+
+        {/* Badges atteint / échoué */}
         {prog.atteint && (
-          <span style={{ fontSize: 10, background: "#0f2a1e", border: "0.5px solid #1a4a30", borderRadius: 4, padding: "1px 5px", color: "var(--green)", fontFamily: "var(--font-geist)", marginLeft: "auto" }}>
-            ✓
+          <span style={{ display: "inline-block", marginTop: 4, fontSize: 10, background: "#0f2a1e", border: "0.5px solid #1a4a30", borderRadius: 4, padding: "1px 7px", color: "var(--green)", fontFamily: "var(--font-geist)" }}>
+            Atteint
           </span>
         )}
         {prog.echoue && (
-          <span style={{ fontSize: 10, background: "#222", border: "0.5px solid #333", borderRadius: 4, padding: "1px 5px", color: "#555", fontFamily: "var(--font-geist)", marginLeft: "auto" }}>
+          <span style={{ display: "inline-block", marginTop: 4, fontSize: 10, background: "#222", border: "0.5px solid #333", borderRadius: 4, padding: "1px 7px", color: "#555", fontFamily: "var(--font-geist)" }}>
             Échoué
           </span>
         )}
       </div>
 
-      {/* Barre de progression */}
-      <div style={{ height: 3, background: "#222", borderRadius: 2 }}>
-        <div style={{
-          height: 3,
-          background: color,
-          borderRadius: 2,
-          width: `${prog.pct}%`,
-          transition: "width 0.4s",
-        }} />
-      </div>
-
-      {/* Indicateur lissé */}
-      {prog.diffLissee !== null && (
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 4,
-          marginTop: 8,
-        }}>
-          <span style={{
-            fontSize: 13,
-            color: isEnAvance ? "var(--green)" : "#ef4444",
-            fontFamily: "var(--font-geist)",
-          }}>
-            {isEnAvance ? "↑" : "↓"}
-          </span>
-          <span style={{
-            fontSize: 11,
-            fontWeight: 500,
-            color: isEnAvance ? "var(--green)" : "#ef4444",
-            fontFamily: "var(--font-dm-mono)",
-          }}>
-            {formatDiff(prog.diffLissee!, obj.type)}
-          </span>
-          <span style={{
-            fontSize: 10,
-            color: "var(--text-dim)",
-            fontFamily: "var(--font-geist)",
-          }}>
-            {isEnAvance ? "d'avance à date" : "de retard à date"}
-          </span>
-        </div>
-      )}
-
-      {/* Pastilles navigation */}
+      {/* Pastilles */}
       {objectifsFiltres.length > 1 && (
-        <div style={{ display: "flex", justifyContent: "center", gap: 5, marginTop: "auto", paddingTop: 8 }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: 5, marginTop: 10 }}>
           {objectifsFiltres.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              style={{
-                width: i === currentSafe ? 16 : 6,
-                height: 6,
-                borderRadius: 3,
-                background: i === currentSafe ? "var(--accent)" : "var(--border-2)",
-                border: "none",
-                cursor: "pointer",
-                padding: 0,
-                transition: "all 0.25s",
-              }}
-            />
+            <button key={i} onClick={() => goTo(i)} style={{
+              width: i === currentSafe ? 16 : 6, height: 6, borderRadius: 3,
+              background: i === currentSafe ? "var(--accent)" : "var(--border-2)",
+              border: "none", cursor: "pointer", padding: 0, transition: "all 0.25s",
+            }} />
           ))}
         </div>
       )}

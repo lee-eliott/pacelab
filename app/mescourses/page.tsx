@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import { lbl } from "@/lib/styles";
 import ObjectifCarousel from "@/components/ObjectifCarousel";
 
 // ─── interfaces ───────────────────────────────────────────────────────────────
@@ -61,7 +62,6 @@ function isRun(a: Activity) { return ["Run", "TrailRun", "VirtualRun"].includes(
 
 // ─── styles ───────────────────────────────────────────────────────────────────
 
-const lbl: React.CSSProperties = { fontSize: 10, color: "var(--text-muted)", letterSpacing: "0.05em", textTransform: "uppercase", fontFamily: "var(--font-geist)", margin: "0 0 6px", display: "block" };
 const card: React.CSSProperties = { background: "var(--surface)", border: "0.5px solid var(--border)", borderRadius: 12, padding: "14px 16px" };
 
 // ─── StreakCalendar ───────────────────────────────────────────────────────────
@@ -97,10 +97,19 @@ function StreakCal({ activities }: { activities: Activity[] }) {
   }
   return (
     <div className="card bento-hover" style={{marginBottom:12}}>
-      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:12,flexWrap:"wrap",gap:10}}>
+      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:6,flexWrap:"wrap",gap:10}}>
         <div><p style={{...lbl,margin:"0 0 4px"}}>Régularité Strava</p><p style={{fontSize:11,color:"var(--text-dim)",margin:0,fontFamily:"var(--font-geist)"}}>20 dernières semaines</p></div>
         <div style={{display:"flex",gap:16}}>
-          <div style={{textAlign:"right"}}><p style={{...lbl,margin:"0 0 2px"}}>Streak actuelle</p><div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:26,fontWeight:500,color:streak>0?"#FC4C02":"var(--text-dim)",fontFamily:"var(--font-dm-mono)",lineHeight:1}}>{streak}</span><span style={{fontSize:11,color:"var(--text-dim)",fontFamily:"var(--font-geist)"}}>sem.</span>{streak>=4&&<svg width="20" height="20" viewBox="0 0 24 24" fill="#FC4C02" stroke="none" aria-label="streak active" style={{animation:"flame-flicker 1.2s ease-in-out infinite",filter:"drop-shadow(0 0 6px rgba(252,76,2,0.7))"}}><path d="M12 2C9.5 5.5 8 8 8 11a4 4 0 0 0 8 0c0-1.5-.5-3-2-5 0 2-1 3.5-2 4.5C11 9.5 12 7 12 2z"/></svg>}</div></div>
+          <div style={{textAlign:"right"}}>
+  <p style={{...lbl,margin:"0 0 2px"}}>Streak actuelle</p>
+  <div style={{display:"flex",alignItems:"center",gap:4,justifyContent:"flex-end",height:26,overflow:"visible"}}>
+    {streak>=4&&<svg width="36" height="36" viewBox="0 0 24 24" fill="#FC4C02" stroke="none" aria-label="streak active" style={{flexShrink:0,marginTop:8,animation:"flame-flicker 1.2s ease-in-out infinite",filter:"drop-shadow(0 0 10px rgba(252,76,2,0.9))"}}><path d="M12 2C9.5 5.5 8 8 8 11a4 4 0 0 0 8 0c0-1.5-.5-3-2-5 0 2-1 3.5-2 4.5C11 9.5 12 7 12 2z"/></svg>}
+    <div style={{display:"flex",alignItems:"baseline",gap:4}}>
+      <span style={{fontSize:26,fontWeight:500,color:streak>0?"#FC4C02":"var(--text-dim)",fontFamily:"var(--font-dm-mono)",lineHeight:1}}>{streak}</span>
+      <span style={{fontSize:11,color:"var(--text-dim)",fontFamily:"var(--font-geist)"}}>sem.</span>
+    </div>
+  </div>
+</div>
           <div style={{textAlign:"right"}}><p style={{...lbl,margin:"0 0 2px"}}>Meilleure</p><div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:26,fontWeight:500,color:"var(--text-muted)",fontFamily:"var(--font-dm-mono)",lineHeight:1}}>{best}</span><span style={{fontSize:11,color:"var(--text-dim)",fontFamily:"var(--font-geist)"}}>sem.</span></div></div>
         </div>
       </div>
@@ -1076,7 +1085,7 @@ function MesCoursesContent() {
                         </div>
                         <div style={{ flex: 1 }}>
                           <p style={{ ...lbl, margin: "0 0 2px" }}>Temps</p>
-                          <p style={{ fontSize: 20, fontWeight: 500, color: "var(--text-primary)", margin: 0, fontFamily: "var(--font-dm-mono)", letterSpacing: "-0.02em" }}>{fmt.time(all?.moving_time ?? 0)}</p>
+                          <p style={{ fontSize: 20, fontWeight: 500, color: "var(--text-primary)", margin: 0, fontFamily: "var(--font-dm-mono)", letterSpacing: "-0.02em" }}>{fmt.time(runs.reduce((s, a) => s + (timeField === "elapsed_time" ? a.elapsed_time : a.moving_time), 0))}</p>
                         </div>
                       </div>
                       <div>

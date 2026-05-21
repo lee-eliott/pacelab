@@ -1,12 +1,5 @@
 "use client";
 
-const pulseStyle = `
-  @keyframes streak-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.35; }
-  }
-`;
-
 function getISOWeek(date: Date): number {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
@@ -127,10 +120,8 @@ export default function StreakCalendar({ courses }: Props) {
   };
 
   return (
-    <div className="card" style={{ marginBottom: 12 }}>
-      <style>{pulseStyle}</style>
-
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
+    <div className="card bento-hover" style={{ marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 12 }}>
         <div>
           <p style={{ ...labelStyle, margin: "0 0 4px" }}>Régularité</p>
           <p style={{ fontSize: 11, color: "var(--text-dim)", margin: 0, fontFamily: "var(--font-geist)" }}>
@@ -140,10 +131,16 @@ export default function StreakCalendar({ courses }: Props) {
         <div style={{ display: "flex", gap: 20 }}>
           <div style={{ textAlign: "right" }}>
             <p style={{ ...labelStyle, margin: "0 0 2px" }}>Streak actuelle</p>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 4, justifyContent: "flex-end" }}>
-              <span style={{ fontSize: 28, fontWeight: 500, color: streakActuelle > 0 ? "var(--coral)" : "var(--text-dim)", fontFamily: "var(--font-dm-mono)", lineHeight: 1 }}>{streakActuelle}</span>
-              <span style={{ fontSize: 11, color: "var(--text-dim)", fontFamily: "var(--font-geist)" }}>sem.</span>
-              {streakActuelle >= 4 && <span style={{ fontSize: 14 }}>🔥</span>}
+            <div style={{ display: "flex", alignItems: "center", gap: 4, justifyContent: "flex-end", height: 28, overflow: "visible" }}>
+              {streakActuelle >= 4 && (
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="var(--coral)" stroke="none" aria-label="streak active" style={{ flexShrink: 0, marginTop: 8, animation: "flame-flicker 1.2s ease-in-out infinite", filter: "drop-shadow(0 0 10px rgba(252,76,2,0.9))" }}>
+                  <path d="M12 2C9.5 5.5 8 8 8 11a4 4 0 0 0 8 0c0-1.5-.5-3-2-5 0 2-1 3.5-2 4.5C11 9.5 12 7 12 2z" />
+                </svg>
+              )}
+              <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+                <span style={{ fontSize: 28, fontWeight: 500, color: streakActuelle > 0 ? "var(--coral)" : "var(--text-dim)", fontFamily: "var(--font-dm-mono)", lineHeight: 1 }}>{streakActuelle}</span>
+                <span style={{ fontSize: 11, color: "var(--text-dim)", fontFamily: "var(--font-geist)" }}>sem.</span>
+              </div>
             </div>
           </div>
           <div style={{ textAlign: "right" }}>
@@ -197,6 +194,9 @@ export default function StreakCalendar({ courses }: Props) {
 
               <div
                 title={tooltip}
+                aria-label={tooltip}
+                role="img"
+                className="week-cell"
                 style={{
                   width: "100%",
                   height: 36,
@@ -206,18 +206,20 @@ export default function StreakCalendar({ courses }: Props) {
                   outline,
                   outlineOffset: "2px",
                   opacity: s.isFuture ? 0.2 : 1,
-                  transition: "all 0.15s",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  cursor: "default",
                   animation: shouldPulse ? "streak-pulse 1.8s ease-in-out infinite" : "none",
                   flexShrink: 0,
+                  position: "relative",
                 }}
               >
                 <span style={{ fontSize: 9, fontWeight: 500, color: textColor, fontFamily: "var(--font-dm-mono)", lineHeight: 1 }}>
                   S{s.weekNum}
                 </span>
+                {s.isCurrentWeek && (
+                  <span style={{ position: "absolute", top: 3, right: 3, width: 5, height: 5, borderRadius: "50%", background: "var(--coral)", animation: "ping 1.5s ease-out infinite" }} />
+                )}
               </div>
             </div>
           );
