@@ -16,12 +16,6 @@ const dmMono = DM_Mono({
 export const metadata: Metadata = {
   title: "Pacelab",
   description: "Suivi de course à pied personnel",
-  icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico" },
-    ],
-  },
 };
 
 export default function RootLayout({
