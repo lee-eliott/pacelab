@@ -17,7 +17,10 @@ export const metadata: Metadata = {
   title: "Pacelab",
   description: "Suivi de course à pied personnel",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" },
+    ],
   },
 };
 
