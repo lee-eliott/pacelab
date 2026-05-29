@@ -5,7 +5,7 @@ export const DEMO_ATHLETE = {
   lastname: "Martin",
   city: "Lyon",
   country: "France",
-  profile: "",
+  profile: "/demo-avatar.svg",
   follower_count: 63,
   friend_count: 41,
 };

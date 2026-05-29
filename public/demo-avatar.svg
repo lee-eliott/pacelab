@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#2a1f0e"/>
+      <stop offset="100%" stop-color="#110d04"/>
+    </radialGradient>
+    <radialGradient id="skinGrad" cx="45%" cy="35%" r="55%">
+      <stop offset="0%" stop-color="#e8a87c"/>
+      <stop offset="100%" stop-color="#c8784c"/>
+    </radialGradient>
+    <radialGradient id="shirtGrad" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#f5a623"/>
+      <stop offset="100%" stop-color="#d4881e"/>
+    </radialGradient>
+    <clipPath id="circle">
+      <circle cx="100" cy="100" r="100"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <circle cx="100" cy="100" r="100" fill="url(#bgGrad)"/>
+
+  <!-- Subtle grid lines -->
+  <g opacity="0.06" stroke="#f5a623" stroke-width="0.5">
+    <line x1="0" y1="50" x2="200" y2="50"/>
+    <line x1="0" y1="100" x2="200" y2="100"/>
+    <line x1="0" y1="150" x2="200" y2="150"/>
+    <line x1="50" y1="0" x2="50" y2="200"/>
+    <line x1="100" y1="0" x2="100" y2="200"/>
+    <line x1="150" y1="0" x2="150" y2="200"/>
+  </g>
+
+  <!-- Body / torso (running shirt) -->
+  <ellipse cx="100" cy="172" rx="42" ry="34" fill="url(#shirtGrad)" clip-path="url(#circle)"/>
+  <!-- Shirt collar detail -->
+  <path d="M83 148 Q100 158 117 148" fill="none" stroke="#d4881e" stroke-width="1.5" opacity="0.6"/>
+  <!-- Shirt stripe -->
+  <path d="M72 155 L80 148 M120 148 L128 155" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Neck -->
+  <rect x="91" y="130" width="18" height="20" rx="6" fill="url(#skinGrad)"/>
+
+  <!-- Head -->
+  <ellipse cx="100" cy="112" rx="32" ry="34" fill="url(#skinGrad)"/>
+
+  <!-- Hair — short dark athletic cut -->
+  <path d="M68 108 Q70 75 100 72 Q130 75 132 108 Q126 88 100 86 Q74 88 68 108Z" fill="#2c1a08"/>
+  <!-- Hair texture -->
+  <path d="M78 88 Q88 82 100 81 Q112 82 122 88" fill="none" stroke="#1a0e02" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Ears -->
+  <ellipse cx="68" cy="113" rx="6" ry="8" fill="#c8784c"/>
+  <ellipse cx="132" cy="113" rx="6" ry="8" fill="#c8784c"/>
+  <ellipse cx="68" cy="113" rx="3.5" ry="5" fill="#b86840"/>
+  <ellipse cx="132" cy="113" rx="3.5" ry="5" fill="#b86840"/>
+
+  <!-- Eyes -->
+  <ellipse cx="88" cy="108" rx="6" ry="6.5" fill="#1a1008"/>
+  <ellipse cx="112" cy="108" rx="6" ry="6.5" fill="#1a1008"/>
+  <!-- Iris -->
+  <ellipse cx="88" cy="109" rx="4" ry="4.5" fill="#3d2408"/>
+  <ellipse cx="112" cy="109" rx="4" ry="4.5" fill="#3d2408"/>
+  <!-- Pupil -->
+  <circle cx="89" cy="109" r="2.5" fill="#0a0604"/>
+  <circle cx="113" cy="109" r="2.5" fill="#0a0604"/>
+  <!-- Eye shine -->
+  <circle cx="91" cy="107" r="1.2" fill="rgba(255,255,255,0.7)"/>
+  <circle cx="115" cy="107" r="1.2" fill="rgba(255,255,255,0.7)"/>
+
+  <!-- Eyebrows — focused/determined look -->
+  <path d="M82 101 Q88 98 94 100" stroke="#2c1a08" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M106 100 Q112 98 118 101" stroke="#2c1a08" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+
+  <!-- Nose -->
+  <path d="M98 112 Q96 120 93 122 Q100 124 107 122 Q104 120 102 112Z" fill="#b86840" opacity="0.6"/>
+
+  <!-- Mouth — slight smile -->
+  <path d="M92 128 Q100 133 108 128" stroke="#8a4020" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+
+  <!-- Subtle cheek warmth -->
+  <ellipse cx="82" cy="120" rx="8" ry="5" fill="#e07050" opacity="0.18"/>
+  <ellipse cx="118" cy="120" rx="8" ry="5" fill="#e07050" opacity="0.18"/>
+
+  <!-- Border ring -->
+  <circle cx="100" cy="100" r="98" fill="none" stroke="rgba(245,166,35,0.3)" stroke-width="1.5"/>
+  <circle cx="100" cy="100" r="95" fill="none" stroke="rgba(245,166,35,0.08)" stroke-width="1"/>
+</svg>
