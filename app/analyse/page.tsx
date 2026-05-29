@@ -25,7 +25,7 @@ function quantile(sorted: number[], q: number) { const pos=(sorted.length-1)*q,b
 
 const card: React.CSSProperties = { background:"var(--surface)",border:"0.5px solid var(--border)",borderRadius:12,padding:"20px 22px" };
 
-function BoxPlot({ paces, selectedId, hoveredId, onSelect, onHover }: { paces:{speed:number;date:string;id:number}[]; selectedId:number|null; hoveredId:number|null; onSelect:(id:number)=>void; onHover:(id:number|null)=>void }) {
+function BoxPlot({ paces, selectedId, hoveredId, mostRecentId, onSelect, onHover }: { paces:{speed:number;date:string;id:number}[]; selectedId:number|null; hoveredId:number|null; mostRecentId:number|null; onSelect:(id:number)=>void; onHover:(id:number|null)=>void }) {
   const sorted=[...paces].map(p=>paceToSec(p.speed)).sort((a,b)=>a-b);
   if(sorted.length<2) return <div style={{textAlign:"center",padding:"30px 0",color:"var(--text-dim)",fontSize:13}}>Minimum 2 sorties pour afficher la distribution.</div>;
   // min = meilleure allure (paceToSec petit), max = pire (grand)
@@ -60,16 +60,17 @@ function BoxPlot({ paces, selectedId, hoveredId, onSelect, onHover }: { paces:{s
         <text x={xOf(q3)} y={midY+boxH/2+14} textAnchor="middle" fontSize={8} fill="#f5a623" opacity={0.7} fontFamily="var(--font-dm-mono)">Q1</text>
         <text x={xOf(q1)} y={midY+boxH/2+14} textAnchor="middle" fontSize={8} fill="#f5a623" opacity={0.7} fontFamily="var(--font-dm-mono)">Q3</text>
         {/* Points */}
-        {paces.map(p=>{const px=xOf(paceToSec(p.speed)),isSel=p.id===selectedId,isHov=p.id===hoveredId;return(
+        {paces.map(p=>{const px=xOf(paceToSec(p.speed)),isSel=p.id===selectedId,isHov=p.id===hoveredId,isRecent=p.id===mostRecentId;return(
           <g key={p.id} onClick={()=>onSelect(p.id===selectedId?-1:p.id)} onMouseEnter={()=>onHover(p.id)} onMouseLeave={()=>onHover(null)} style={{cursor:"pointer"}}>
             <rect x={px-12} y={midY-12} width={24} height={24} fill="transparent"/>
-            <circle cx={px} cy={midY} r={isSel||isHov?8:5} fill={isSel?"#fff":isHov?"rgba(255,255,255,0.8)":"rgba(245,166,35,0.55)"} stroke={isSel||isHov?"#f5a623":"rgba(245,166,35,0.2)"} strokeWidth={isSel||isHov?2:1}/>
+            <circle cx={px} cy={midY} r={isSel||isHov?8:isRecent?7:5} fill={isSel?"#fff":isHov?"rgba(255,255,255,0.8)":isRecent?"#60a5fa":"rgba(245,166,35,0.55)"} stroke={isSel||isHov?"#f5a623":isRecent?"#93c5fd":"rgba(245,166,35,0.2)"} strokeWidth={isSel||isHov?2:isRecent?2:1}/>
+            {isRecent&&!isSel&&<text x={px} y={midY-16} textAnchor="middle" fontSize={9} fill="#60a5fa" fontFamily="var(--font-dm-mono)">{fmtPace(p.speed)}</text>}
             {isSel&&<text x={px} y={midY-16} textAnchor="middle" fontSize={9} fill="#f5a623" fontFamily="var(--font-dm-mono)">{fmtPace(p.speed)}</text>}
           </g>
         );})}
       </svg>
       <div style={{display:"flex",gap:16,marginTop:6}}>
-        {[{c:"var(--text-muted)",l:`Max · ${secToPaceStr(max)}`},{c:"#f5a623",l:`Médiane · ${secToPaceStr(median)}`},{c:"#1d9e75",l:`Min · ${secToPaceStr(min)} ← PR`}].map(({c,l})=><span key={l} style={{fontSize:11,color:c,fontFamily:"var(--font-dm-mono)"}}>{l}</span>)}
+        {[{c:"var(--text-muted)",l:`Max · ${secToPaceStr(max)}`},{c:"#f5a623",l:`Médiane · ${secToPaceStr(median)}`},{c:"#1d9e75",l:`Min · ${secToPaceStr(min)} ← PR`},{c:"#60a5fa",l:"Dernière sortie"}].map(({c,l})=><span key={l} style={{fontSize:11,color:c,fontFamily:"var(--font-dm-mono)"}}>{l}</span>)}
       </div>
     </div>
   );
@@ -236,6 +237,7 @@ export default function AnalysePage() {
     });
   const anneesDisponibles=Array.from(new Set(activities.filter(a=>associations.get(a.id)?.id===selectedParcours).map(a=>a.start_date_local.substring(0,4)))).sort((a,b)=>b.localeCompare(a));
   const paces=actsForParcours.map(a=>{const p=associations.get(a.id);const speed=p?.distance_km?(p.distance_km*1000)/getTime(a):a.average_speed;return{speed,date:a.start_date_local,id:a.id};});
+  const mostRecentId=paces[0]?.id??null;
   const selectedActivity=selectedActivityId&&selectedActivityId>0?actsForParcours.find(a=>a.id===selectedActivityId)??null:null;
   const selPaceNum=selectedActivity?(()=>{const p=associations.get(selectedActivity.id);return p?.distance_km?(p.distance_km*1000)/getTime(selectedActivity):selectedActivity.average_speed;})():null;
 
@@ -337,7 +339,7 @@ export default function AnalysePage() {
                 <div className="bento-hover" style={{...card,marginBottom:16}}>
                   <p style={{...lbl,margin:"0 0 4px"}}>Distribution des allures</p>
                   <p style={{fontSize:11,color:"var(--text-dim)",margin:"0 0 16px",fontFamily:"var(--font-geist)"}}>Clique sur un point pour voir les détails d'une sortie</p>
-                  <BoxPlot paces={paces} selectedId={selectedActivityId} hoveredId={hoveredId} onSelect={setSelectedActivityId} onHover={setHoveredId}/>
+                  <BoxPlot paces={paces} selectedId={selectedActivityId} hoveredId={hoveredId} mostRecentId={mostRecentId} onSelect={setSelectedActivityId} onHover={setHoveredId}/>
                 </div>
                 </RevealOnScroll>
 
@@ -487,11 +489,12 @@ export default function AnalysePage() {
                             <text x={padL-4} y={yOf(s)+4} textAnchor="end" fontSize={8} style={{fill:"var(--text-dim)"}} fontFamily="var(--font-dm-mono)">{fmtPace(s)}</text>
                           </g>
                         ))}
-                        {points.map(p=>{const isSel=p.id===selectedActivityId,isHov=p.id===hoveredId;return(
+                        {points.map(p=>{const isSel=p.id===selectedActivityId,isHov=p.id===hoveredId,isRecent=p.id===mostRecentId;return(
                           <g key={p.id} onClick={()=>setSelectedActivityId(p.id===selectedActivityId?null:p.id)} onMouseEnter={()=>setHoveredId(p.id)} onMouseLeave={()=>setHoveredId(null)} style={{cursor:"pointer"}}>
                             <rect x={xOf(p.days)-12} y={yOf(p.speed)-12} width={24} height={24} fill="transparent"/>
-                            <circle cx={xOf(p.days)} cy={yOf(p.speed)} r={isSel||isHov?7:4} fill={isSel?"#fff":isHov?"rgba(255,255,255,0.8)":"rgba(245,166,35,0.6)"} stroke={isSel||isHov?"#f5a623":"rgba(245,166,35,0.2)"} strokeWidth={isSel||isHov?2:1}/>
-            {isSel&&<text x={xOf(p.days)} y={yOf(p.speed)-12} textAnchor="middle" fontSize={9} fill="#f5a623" fontFamily="var(--font-dm-mono)">{fmtPace(p.speed)}</text>}
+                            <circle cx={xOf(p.days)} cy={yOf(p.speed)} r={isSel||isHov?7:isRecent?6:4} fill={isSel?"#fff":isHov?"rgba(255,255,255,0.8)":isRecent?"#60a5fa":"rgba(245,166,35,0.6)"} stroke={isSel||isHov?"#f5a623":isRecent?"#93c5fd":"rgba(245,166,35,0.2)"} strokeWidth={isSel||isHov?2:isRecent?2:1}/>
+                            {isRecent&&!isSel&&<text x={xOf(p.days)} y={yOf(p.speed)-12} textAnchor="middle" fontSize={9} fill="#60a5fa" fontFamily="var(--font-dm-mono)">{fmtPace(p.speed)}</text>}
+                            {isSel&&<text x={xOf(p.days)} y={yOf(p.speed)-12} textAnchor="middle" fontSize={9} fill="#f5a623" fontFamily="var(--font-dm-mono)">{fmtPace(p.speed)}</text>}
                           </g>
                         );})}
                       </svg>
@@ -641,10 +644,10 @@ export default function AnalysePage() {
                     </tr></thead>
                     <tbody>
                       {[...actsForParcours].map(a=>{const p=associations.get(a.id);const speed=p?.distance_km?(p.distance_km*1000)/getTime(a):a.average_speed;return{a,speed};}).sort((x,y)=>y.speed-x.speed).map(({a,speed},rank)=>{
-                        const isSel=a.id===selectedActivityId,isHov=a.id===hoveredId,isPR=rank===0;
+                        const isSel=a.id===selectedActivityId,isHov=a.id===hoveredId,isPR=rank===0,isRecent=a.id===mostRecentId;
                         return<tr key={a.id} onClick={()=>setSelectedActivityId(a.id===selectedActivityId?null:a.id)} onMouseEnter={()=>setHoveredId(a.id)} onMouseLeave={()=>setHoveredId(null)} style={{borderBottom:"0.5px solid var(--border)",background:isSel?"var(--surface-2)":a.id===hoveredId?"rgba(255,255,255,0.03)":"transparent",cursor:"pointer",transition:"background .1s"}}>
-                          <td style={{padding:"9px 14px",borderLeft:isSel||isHov?"2px solid #f5a623":"2px solid transparent"}}>{isPR?<span style={{fontSize:10,background:"rgba(245,166,35,.15)",border:"0.5px solid #f5a623",borderRadius:4,padding:"1px 5px",color:"#f5a623",fontFamily:"var(--font-geist)"}}>PR</span>:<span style={{fontSize:12,color:"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>{rank+1}</span>}</td>
-                          <td style={{padding:"9px 14px",fontSize:12,color:"var(--text-dim)",fontFamily:"var(--font-geist)"}}>{fmtDate(a.start_date_local)}</td>
+                          <td style={{padding:"9px 14px",borderLeft:isSel||isHov?"2px solid #f5a623":isRecent?"2px solid #60a5fa":"2px solid transparent"}}>{isPR?<span style={{fontSize:10,background:"rgba(245,166,35,.15)",border:"0.5px solid #f5a623",borderRadius:4,padding:"1px 5px",color:"#f5a623",fontFamily:"var(--font-geist)"}}>PR</span>:<span style={{fontSize:12,color:"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>{rank+1}</span>}</td>
+                          <td style={{padding:"9px 14px",fontSize:12,color:isRecent?"#60a5fa":"var(--text-dim)",fontFamily:"var(--font-geist)",fontWeight:isRecent?600:400}}>{fmtDate(a.start_date_local)}{isRecent&&<span style={{fontSize:9,marginLeft:6,color:"#60a5fa",opacity:0.8,fontFamily:"var(--font-geist)",letterSpacing:"0.04em",textTransform:"uppercase"}}>récente</span>}</td>
                           <td style={{padding:"9px 14px"}}><span style={{fontSize:14,fontWeight:500,color:isPR?"#f5a623":"var(--text-primary)",fontFamily:"var(--font-dm-mono)"}}>{fmtPace(speed)}</span></td>
                           <td style={{padding:"9px 14px",fontSize:12,color:"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>{fmtTime(getTime(a))}</td>
                           <td style={{padding:"9px 14px",fontSize:12,color:"var(--text-dim)",fontFamily:"var(--font-dm-mono)"}}>{a.total_elevation_gain>0?`+${Math.round(a.total_elevation_gain)}m`:"—"}</td>

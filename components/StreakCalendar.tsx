@@ -59,8 +59,7 @@ export default function StreakCalendar({ courses }: Props) {
   if (allDates.length > 0) {
     let w = new Date(currentMonday);
     const currentWeekHasCourse = weekHasCourse(w);
-    const todayIsMonday = today.getDay() === 1;
-    if (!currentWeekHasCourse && !todayIsMonday) w = addDays(w, -7);
+    if (!currentWeekHasCourse) w = addDays(w, -7);
 
     const firstMonday = getMondayOf(allDates[0]);
     while (w >= firstMonday) {
