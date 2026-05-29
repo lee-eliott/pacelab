@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { lbl } from "@/lib/styles";
@@ -538,6 +539,8 @@ export default function RecompensesPage() {
   const [newBadges, setNewBadges] = useState<BadgeInfo[]>([]);
   const [showToast, setShowToast] = useState(false);
   const [nextBadgeId, setNextBadgeId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     async function init() {
@@ -668,8 +671,8 @@ export default function RecompensesPage() {
     <div style={{ minHeight:"100vh" }}>
       <Navbar isLoggedIn={isLoggedIn} isDemo={isDemo} />
 
-      {/* Modal nouveaux badges */}
-      {showToast && newBadges.length > 0 && (
+      {/* Modal nouveaux badges — portal pour échapper au transform du Template */}
+      {mounted && showToast && newBadges.length > 0 && createPortal(
         <div
           onClick={e => e.target === e.currentTarget && setShowToast(false)}
           style={{
@@ -778,7 +781,8 @@ export default function RecompensesPage() {
               Super, merci !
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       <main style={{ padding:"24px", maxWidth:1100, margin:"0 auto" }}>
