@@ -1,0 +1,13 @@
+name: Ping Supabase
+
+on:
+  schedule:
+    - cron: "0 12 */3 * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping
+        run: curl -f ${{ secrets.PING_URL }}/api/cron/ping
