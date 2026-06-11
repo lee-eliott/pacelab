@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping
-        run: curl -f ${{ secrets.PING_URL }}/api/cron/ping
+        run: curl -f ${{ vars.CRON_SECRET }}/api/cron/ping
