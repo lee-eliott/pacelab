@@ -1,4 +1,4 @@
-export const runtime = "edge";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -15,8 +15,8 @@ export async function GET() {
   );
 
   if (!res.ok) {
-    return Response.json({ ok: false, status: res.status }, { status: 502 });
+    return NextResponse.json({ ok: false, status: res.status }, { status: 502 });
   }
 
-  return Response.json({ ok: true, pingedAt: new Date().toISOString() });
+  return NextResponse.json({ ok: true, pingedAt: new Date().toISOString() });
 }
